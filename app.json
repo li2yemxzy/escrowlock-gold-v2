@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "escrowlock-sdk-57",
-    "slug": "snack-656ee4ee-909d-4a65-9639-7003fbe3554c",
+    "name": "escrowlock-gold-v2", 
+    "slug": "escrowlock-gold-v2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
