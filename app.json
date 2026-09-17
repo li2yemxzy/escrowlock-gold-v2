@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "escrowlock-gold-v2", 
+    "name": "escrowlock-gold-v2",
     "slug": "escrowlock-gold-v2",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,6 +16,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.li2yemxzy.escrowlockgoldv2",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
