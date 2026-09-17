@@ -18,8 +18,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "685b2b42-52b1-40bd-8a7f-9e3c2d1b0a4f"
+        "projectId": "b03b6ad2-62d1-4dbd-8cf9-fc44d82eaf21"
       }
-    }
+    },
+    "sdkVersion": "54.0.0",
+    "platforms": ["ios", "android"]
   }
 }
