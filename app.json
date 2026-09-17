@@ -12,13 +12,13 @@
     "android": {
       "package": "com.li2yemxzy.escrowlockgold",
       "adaptiveIcon": {
-        "foregroundImage": "./icon.png",
+        "foregroundImage": "./adaptive-icon.png",
         "backgroundColor": "#0A2E1F"
       }
     },
     "extra": {
       "eas": {
-        "projectId": "685b2b42-52b1-40bd-8"
+        "projectId": "685b2b42-52b1-40bd-8a7f-9e3c2d1b0a4f"
       }
     }
   }
