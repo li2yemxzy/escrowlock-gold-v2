@@ -3,14 +3,28 @@
     "name": "escrowlock-gold-v2",
     "slug": "escrowlock-gold-v2",
     "version": "1.0.0",
-    "owner": "li2yemxzy",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "android": {
+      "package": "com.li2yemxzy.escrowlockgoldv2",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "extra": {
       "eas": {
         "projectId": "685b2b42-52b1-40bd-8c79-70ebfcd1a21e"
       }
-    },
-    "android": {
-      "package": "com.li2yemxzy.escrowlockgoldv2"
     }
   }
 }
