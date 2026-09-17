@@ -1,6 +1,8 @@
 {
-  "license": "0BSD",
+  "name": "escrowlock-gold-v2",
+  "version": "1.0.0",
   "main": "index.js",
+  "license": "0BSD",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -13,6 +15,7 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "@expo/vector-icons": "^15.0.3",
+    "expo-font": "~13.3.1",
     "react-native-paper": "4.9.2"
   },
   "private": true
