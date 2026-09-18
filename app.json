@@ -10,9 +10,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#0A0A0A"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.li2yemxzy.escrowlockgold"
@@ -29,7 +27,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "68b52a42-52b1-400b-8c79-7e09cfc61e21e"
+        "projectId": "d85b2d62-5201-400b-8c79-7e09cfc61e21e"
       }
     },
     "sdkVersion": "54.0.0",
