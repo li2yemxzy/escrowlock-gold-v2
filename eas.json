@@ -5,11 +5,8 @@
   },
   "build": {
     "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      }
-    }
-  },
-  "projectId": "68b52a42-5201-400b-8c79-7e09cfc61e21e"
+      "distribution": "internal"
+    },
+    "production": {}
+  }
 }
