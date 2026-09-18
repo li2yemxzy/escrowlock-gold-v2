@@ -4,12 +4,6 @@
     "slug": "escrowlock-gold-v2",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0A0A0A"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -18,14 +12,7 @@
       "bundleIdentifier": "com.li2yemxzy.escrowlockgold"
     },
     "android": {
-      "package": "com.li2yemxzy.escrowlockgold",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#0A0A0A"
-      }
-    },
-    "web": {
-      "favicon": "./assets/icon.png"
+      "package": "com.li2yemxzy.escrowlockgold"
     },
     "extra": {
       "eas": {
