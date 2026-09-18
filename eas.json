@@ -1,24 +1,15 @@
 {
   "cli": {
-    "version": ">= 5.9.0",
+    "version": ">= 5.9.1",
     "appVersionSource": "remote"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
-    },
-    "production": {
-      "autoIncrement": true
     }
   },
-  "submit": {
-    "production": {}
-  }
+  "projectId": "68b52a42-5201-400b-8c79-7e09cfc61e21e"
 }
