@@ -1,76 +1,97 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, Alert } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
-  const [screen, setScreen] = useState('home');
   const [item, setItem] = useState('');
   const [amount, setAmount] = useState('');
   const [seller, setSeller] = useState('');
   const [deals, setDeals] = useState([]);
-  const [currentDeal, setCurrentDeal] = useState(null);
 
   const createDeal = () => {
-    if (!item || !amount) return Alert.alert('Fill item and amount');
-    const newDeal = { id: 'ELNG-' + Date.now(), item, amount: parseInt(amount), seller, status: 'pending_payment', date: new Date().toLocaleString() };
-    setDeals([newDeal, ...deals]); setCurrentDeal(newDeal); setScreen('pay'); setItem(''); setAmount(''); setSeller('');
-  };
-  const payNow = () => {
-    Alert.alert('Paystack', `Pay ₦${currentDeal.amount + 20} for ${currentDeal.item}?`, [
-      { text: 'Cancel' },
-      { text: 'Pay Now', onPress: () => {
-        setTimeout(() => {
-          const updated = deals.map(d => d.id === currentDeal.id ? {...d, status: 'funds_in_escrow'} : d);
-          setDeals(updated); setScreen('deals'); Alert.alert('Success ✅', 'Payment confirmed! Funds in Escrow 🔒');
-        }, 1500);
-      }}
-    ]);
+    if(!item || !amount || !seller){
+      Alert.alert("Fill all fields", "Item, Amount and Seller is required");
+      return;
+    }
+    const newDeal = { id: Date.now(), item, amount, seller };
+    setDeals([...deals, newDeal]);
+    setItem(''); setAmount(''); setSeller('');
+    Alert.alert("🔒 Deal Created!", `${item} - ₦${amount} secured`);
   };
 
-  if (screen === 'pay' && currentDeal) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>💳 Pay for {currentDeal.item}</Text>
-        <Text style={styles.big}>₦{currentDeal.amount + 20}</Text>
-        <Text>Ref: {currentDeal.id}</Text>
-        <TouchableOpacity style={styles.btn} onPress={payNow}><Text style={styles.btnText}>Pay with Paystack</Text></TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
-  if (screen === 'deals') {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>📦 My Deals</Text>
-        <FlatList data={deals} keyExtractor={i => i.id} renderItem={({item}) => (
-          <View style={styles.card}><Text style={styles.bold}>{item.item} - ₦{item.amount}</Text><Text>Status: {item.status === 'funds_in_escrow' ? '🔒 In Escrow' : '⏳ Pending'}</Text><Text style={styles.small}>{item.id}</Text></View>
-        )} />
-        <TouchableOpacity style={styles.btn} onPress={() => setScreen('home')}><Text style={styles.btnText}>Home</Text></TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.logo}>🔒 EscrowLock Gold</Text>
-      <Text style={styles.sub}>Secure deals, no scam</Text>
-      <TextInput style={styles.input} placeholder="Item name e.g Phone 11" value={item} onChangeText={setItem} />
-      <TextInput style={styles.input} placeholder="Amount e.g 1000" keyboardType="numeric" value={amount} onChangeText={setAmount} />
-      <TextInput style={styles.input} placeholder="Seller phone/email" value={seller} onChangeText={setSeller} />
-      <TouchableOpacity style={styles.btn} onPress={createDeal}><Text style={styles.btnText}>Create Deal</Text></TouchableOpacity>
-      <TouchableOpacity style={styles.btnOutline} onPress={() => setScreen('deals')}><Text style={styles.btnOutlineText}>View My Deals ({deals.length})</Text></TouchableOpacity>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <StatusBar style="light" />
+      <ScrollView contentContainerStyle={styles.scroll}>
+        
+        {/* LOGO HEADER - GOLD LION */}
+        <View style={styles.header}>
+          <Image source={require('./icon.png')} style={styles.logo} />
+          <Text style={styles.title}>EscrowLock Gold</Text>
+          <Text style={styles.subtitle}>Secure deals, no scam 🦁</Text>
+        </View>
+
+        {/* INPUTS */}
+        <View style={styles.card}>
+          <TextInput
+            style={styles.input}
+            placeholder="Item name e.g Phone 11"
+            placeholderTextColor="#999"
+            value={item}
+            onChangeText={setItem}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Amount e.g 1000"
+            placeholderTextColor="#999"
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Seller phone/email"
+            placeholderTextColor="#999"
+            value={seller}
+            onChangeText={setSeller}
+          />
+
+          <TouchableOpacity style={styles.goldButton} onPress={createDeal}>
+            <Text style={styles.goldButtonText}>Create Deal 🔒</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.outlineButton}>
+            <Text style={styles.outlineText}>View My Deals ({deals.length})</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* DEALS LIST */}
+        {deals.map(d => (
+          <View key={d.id} style={styles.dealBox}>
+            <Text style={styles.dealText}>🦁 {d.item} - ₦{d.amount}</Text>
+            <Text style={styles.dealSub}>{d.seller}</Text>
+          </View>
+        ))}
+
+      </ScrollView>
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 25, paddingTop: 70, backgroundColor: '#fff' },
-  logo: { fontSize: 32, fontWeight: 'bold', textAlign: 'center' },
-  sub: { textAlign: 'center', marginBottom: 30, color: '#666' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
-  big: { fontSize: 40, fontWeight: 'bold', marginVertical: 20 },
-  input: { borderWidth: 1, borderColor: '#ddd', padding: 15, borderRadius: 10, marginBottom: 12 },
-  btn: { backgroundColor: '#000', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  btnText: { color: '#fff', fontWeight: 'bold' },
-  btnOutline: { borderWidth: 1, borderColor: '#000', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  btnOutlineText: { fontWeight: 'bold' },
-  card: { borderWidth: 1, borderColor: '#eee', padding: 15, borderRadius: 12, marginBottom: 10, backgroundColor: '#f9f9f9' },
-  bold: { fontWeight: 'bold' },
-  small: { fontSize: 10, color: '#888' }
+  container: { flex: 1, backgroundColor: '#000000' },
+  scroll: { padding: 20, paddingTop: 60 },
+  header: { alignItems: 'center', marginBottom: 30 },
+  logo: { width: 90, height: 90, borderRadius: 20, borderWidth: 2, borderColor: '#D4AF37' },
+  title: { color: '#D4AF37', fontSize: 28, fontWeight: 'bold', marginTop: 15, letterSpacing: 1 },
+  subtitle: { color: '#00A651', fontSize: 14, marginTop: 5, fontWeight: '600' },
+  card: { backgroundColor: '#111', borderRadius: 20, padding: 20, borderWidth: 1, borderColor: '#222' },
+  input: { backgroundColor: '#1A1A1A', color: '#fff', borderWidth: 1, borderColor: '#333', borderRadius: 12, padding: 16, marginBottom: 15, fontSize: 16 },
+  goldButton: { backgroundColor: '#D4AF37', borderRadius: 14, padding: 18, alignItems: 'center', marginTop: 10 },
+  goldButtonText: { color: '#000', fontWeight: 'bold', fontSize: 16 },
+  outlineButton: { borderWidth: 1, borderColor: '#D4AF37', borderRadius: 14, padding: 18, alignItems: 'center', marginTop: 15 },
+  outlineText: { color: '#D4AF37', fontWeight: 'bold', fontSize: 16 },
+  dealBox: { backgroundColor: '#1A1A1A', borderLeftWidth: 4, borderLeftColor: '#D4AF37', padding: 15, borderRadius: 10, marginTop: 15 },
+  dealText: { color: '#fff', fontWeight: 'bold' },
+  dealSub: { color: '#888', marginTop: 4 }
 });
