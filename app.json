@@ -3,10 +3,15 @@
     "name": "EscrowLock Gold V2",
     "slug": "escrowlock-gold-v2",
     "version": "1.0.1",
+    "owner": "olaitan001s-team",
     "android": {
       "package": "com.escrowlockgold.app",
-      "versionCode": 12
+      "versionCode": 13
     },
-    "extra": { "eas": { "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab" } }
+    "extra": {
+      "eas": {
+        "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab"
+      }
+    }
   }
 }
