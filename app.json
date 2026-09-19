@@ -12,19 +12,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#0F7A4A"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.escrowlockgold.app"
     },
     "android": {
+      "package": "com.escrowlockgold.app",
       "adaptiveIcon": {
-        "foregroundImage": "./app-icon.png",
-        "backgroundColor": "#0F7A4A"
-      },
-      "package": "com.escrowlockgold.app"
+        "backgroundColor": "#0F7A4A",
+        "foregroundImage": "./app-icon.png"
+      }
     },
     "web": {
       "favicon": "./app-icon.png"
@@ -33,6 +31,7 @@
       "eas": {
         "projectId": "5425fbdd-0fd1-442b-a1a3-b7c954c8bdd2"
       }
-    }
+    },
+    "plugins": []
   }
 }
