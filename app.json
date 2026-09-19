@@ -13,6 +13,13 @@
         "backgroundColor": "#0F7A4A"
       }
     },
-    "extra": { "eas": { "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab" } }
+    "extra": {
+      "eas": {
+        "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab"
+      }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }
