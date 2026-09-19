@@ -4,14 +4,15 @@
     "slug": "escrowlock-gold-v2",
     "version": "1.0.1",
     "owner": "olaitan001s-team",
+    "icon": "./icon.png",
     "android": {
       "package": "com.escrowlockgold.app",
-      "versionCode": 13
-    },
-    "extra": {
-      "eas": {
-        "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab"
+      "versionCode": 14,
+      "adaptiveIcon": {
+        "foregroundImage": "./icon.png",
+        "backgroundColor": "#0F7A4A"
       }
-    }
+    },
+    "extra": { "eas": { "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab" } }
   }
 }
