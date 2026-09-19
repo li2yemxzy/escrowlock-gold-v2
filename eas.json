@@ -1,7 +1,21 @@
 {
   "cli": { "version": ">= 5.9.3" },
   "build": {
-    "preview": { "distribution": "internal", "node": "18.18.0" },
-    "production": { "distribution": "store", "autoIncrement": true, "node": "18.18.0" }
+    "preview": {
+      "distribution": "internal",
+      "node": "18.18.0"
+    },
+    "production": {
+      "distribution": "store",
+      "autoIncrement": true,
+      "node": "18.18.0"
+    },
+    "production-apk": {
+      "extends": "production",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    }
   }
 }
