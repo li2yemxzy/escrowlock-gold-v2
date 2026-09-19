@@ -20,6 +20,11 @@
     "ios": {
       "supportsTablet": true
     },
-    "platforms": ["android", "ios", "web"]
+    "platforms": ["android", "ios", "web"],
+    "extra": {
+      "eas": {
+        "projectId": "5425fbdd-0fd1-442b-a1a3-b7c954c8bdd2"
+      }
+    }
   }
 }
