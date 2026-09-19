@@ -4,31 +4,23 @@
     "slug": "escrowlock-gold",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./app-icon.jpg",
-    "scheme": "escrowlockgold",
+    "icon": "./app-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./app-icon.jpg",
+      "image": "./app-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0F7A4A"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true,
-      "icon": "./app-icon.jpg",
       "bundleIdentifier": "com.escrowlockgold.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./app-icon.jpg",
+        "foregroundImage": "./app-icon.png",
         "backgroundColor": "#0F7A4A"
       },
       "package": "com.escrowlockgold.app"
-    },
-    "web": {
-      "favicon": "./app-icon.jpg"
     },
     "extra": {
       "eas": {
