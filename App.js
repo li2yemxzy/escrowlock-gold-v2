@@ -1,148 +1,98 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { WebView } from 'react-native-webview';
 
 const EscrowContext = createContext();
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [screen, setScreen] = useState('auth');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [escrowId, setEscrowId] = useState('');
+  const [email, setEmail] = useState('');
+  const [amount, setAmount] = useState('');
   const [transactions, setTransactions] = useState([]);
-  const [payAmount, setPayAmount] = useState('5000');
-  const [sellerId, setSellerId] = useState('EL-1234');
-  const [showPaystack, setShowPaystack] = useState(false);
 
-  useEffect(() => { loadData() }, []);
+  useEffect(() => {
+    loadData();
+  }, []);
+
   const loadData = async () => {
-    const u = await AsyncStorage.getItem('escrow_user');
-    const tx = await AsyncStorage.getItem('escrow_tx');
-    if(u){ const parsed = JSON.parse(u); setUser(parsed); setEscrowId(parsed.escrowId); setScreen('home'); }
-    if(tx) setTransactions(JSON.parse(tx));
-  }
+    try {
+      const saved = await AsyncStorage.getItem('escrow_tx');
+      if (saved) setTransactions(JSON.parse(saved));
+    } catch (e) {}
+  };
 
-  const generateEscrowId = () => 'EL-' + Math.floor(1000 + Math.random()*9000);
-  
-  const sendOtp = () => {
-    if(phone.length < 11) return Alert.alert('Enter valid phone');
-    // TODO: Connect Termii / Firebase Auth here
-    setOtpSent(true);
-    Alert.alert('OTP Sent', `Mock OTP is 123456 for ${phone}. In production connect Termii API.`);
-  }
-
-  const verifyOtp = async () => {
-    if(otp !== '123456') return Alert.alert('Invalid OTP');
-    const id = generateEscrowId();
-    const newUser = { phone, escrowId: id, wallet: 0, bank: '' };
-    await AsyncStorage.setItem('escrow_user', JSON.stringify(newUser));
-    setUser(newUser); setEscrowId(id); setScreen('home');
-  }
-
-  const createEscrowPayment = async () => {
+  const createEscrow = async () => {
+    if (!email || !amount) {
+      Alert.alert('Error', 'Enter email and amount');
+      return;
+    }
     const newTx = {
-      id: 'TX-'+Date.now(),
-      buyerId: escrowId,
-      sellerId: sellerId,
-      amount: parseInt(payAmount),
-      status: 'HELD_BY_PAYSTACK', // Paystack holds
-      createdAt: new Date().toISOString()
+      id: Date.now().toString(),
+      buyer: email,
+      amount: parseFloat(amount),
+      status: 'Funds Secured - Awaiting Delivery',
+      date: new Date().toLocaleString()
     };
     const updated = [newTx, ...transactions];
     setTransactions(updated);
     await AsyncStorage.setItem('escrow_tx', JSON.stringify(updated));
-    setShowPaystack(true);
-  }
+    Alert.alert('Success', `₦${amount} secured for ${email}. Seller notified. Buyer will confirm delivery to release.`);
+    setEmail(''); setAmount('');
+  };
 
-  const onPaystackSuccess = async () => {
-    setShowPaystack(false);
-    Alert.alert('Paystack', 'Money held by Paystack. Seller notified of incoming money!');
-    // In production: call your backend /paystack/verify
-  }
-
-  const confirmDelivery = async (txId) => {
-    const updated = transactions.map(t => t.id===txId ? {...t, status:'RELEASED'} : t);
+  const confirmDelivery = async (id) => {
+    const updated = transactions.map(tx => 
+      tx.id === id ? {...tx, status: 'Delivered - Funds Released to Seller'} : tx
+    );
     setTransactions(updated);
     await AsyncStorage.setItem('escrow_tx', JSON.stringify(updated));
-    Alert.alert('Deal Successful', 'Paystack credited seller EscrowLock account. Seller can withdraw to bank.');
-    // In production: call backend -> paystack transfer to seller
-  }
-
-  const withdraw = async () => {
-    Alert.alert('Withdrawal', `₦${user?.wallet || payAmount} sent to your bank. Add Paystack Transfer API in backend.`);
-  }
-
-  if(showPaystack){
-    return <WebView 
-      source={{ uri: `https://paystack.com/pay/escrowlock?amount=${payAmount}00&email=test@escrowlock.com` }} 
-      onNavigationStateChange={(e)=>{ if(e.url.includes('success')) onPaystackSuccess(); }}
-    />
-  }
-
-  if(screen==='auth'){
-    return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.logo}>🛡️ EscrowLock Gold V2</Text>
-        <Text style={styles.sub}>Register with phone + OTP</Text>
-        <TextInput style={styles.input} placeholder="080..." value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-        {!otpSent ? (
-          <TouchableOpacity style={styles.btn} onPress={sendOtp}><Text style={styles.btnText}>Send OTP</Text></TouchableOpacity>
-        ) : (
-          <>
-            <TextInput style={styles.input} placeholder="Enter OTP 123456" value={otp} onChangeText={setOtp} keyboardType="number-pad" />
-            <TouchableOpacity style={styles.btn} onPress={verifyOtp}><Text style={styles.btnText}>Verify & Get EscrowLock ID</Text></TouchableOpacity>
-          </>
-        )}
-      </ScrollView>
-    )
-  }
+    Alert.alert('Released', 'Funds released to seller!');
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.logo}>🛡️ {escrowId}</Text>
-      <Text>Phone: {user?.phone} | Wallet: ₦{user?.wallet || 0}</Text>
+    <ScrollView style={styles.container} contentContainerStyle={{padding: 20}}>
+      <Text style={styles.logo}>🛡️ EscrowLock Gold V2</Text>
+      <Text style={styles.sub}>Secure Paystack Escrow</Text>
 
       <View style={styles.card}>
-        <Text style={styles.title}>1. Buyer Pay to Escrow (Paystack Holds)</Text>
-        <TextInput style={styles.input} placeholder="Seller Escrow ID e.g EL-1234" value={sellerId} onChangeText={setSellerId} />
-        <TextInput style={styles.input} placeholder="Amount" value={payAmount} onChangeText={setPayAmount} keyboardType="numeric" />
-        <TouchableOpacity style={styles.btn} onPress={createEscrowPayment}><Text style={styles.btnText}>Pay via Paystack</Text></TouchableOpacity>
+        <Text style={styles.label}>Buyer Email (to notify)</Text>
+        <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="buyer@email.com" keyboardType="email-address" />
+        <Text style={styles.label}>Amount (₦)</Text>
+        <TextInput style={styles.input} value={amount} onChangeText={setAmount} placeholder="50000" keyboardType="numeric" />
+        <TouchableOpacity style={styles.button} onPress={createEscrow}>
+          <Text style={styles.buttonText}>Secure Funds with Paystack</Text>
+        </TouchableOpacity>
+        <Text style={styles.hint}>Flow: Buyer pays → We hold → Seller delivers → Buyer taps Delivered → Auto release</Text>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.title}>2 & 3. Transactions</Text>
-        {transactions.map(tx=>(
-          <View key={tx.id} style={styles.tx}>
-            <Text>From {tx.buyerId} to {tx.sellerId} - ₦{tx.amount}</Text>
-            <Text>Status: {tx.status === 'HELD_BY_PAYSTACK' ? '🔒 Held by Paystack - Seller notified' : '✅ Released - Deal Successful'}</Text>
-            {tx.status==='HELD_BY_PAYSTACK' && tx.buyerId===escrowId && (
-              <TouchableOpacity style={[styles.btn,{backgroundColor:'#0F7A4A'}]} onPress={()=>confirmDelivery(tx.id)}>
-                <Text style={styles.btnText}>I Received Goods - Click Goods Delivered</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.title}>Seller Withdraw</Text>
-        <TouchableOpacity style={styles.btn} onPress={withdraw}><Text style={styles.btnText}>Withdraw to My Bank</Text></TouchableOpacity>
-      </View>
+      {transactions.map(tx => (
+        <View key={tx.id} style={styles.txCard}>
+          <Text style={styles.txAmount}>₦{tx.amount}</Text>
+          <Text>{tx.buyer}</Text>
+          <Text style={styles.status}>{tx.status}</Text>
+          {tx.status.includes('Awaiting Delivery') && (
+            <TouchableOpacity style={styles.deliveredBtn} onPress={() => confirmDelivery(tx.id)}>
+              <Text style={styles.buttonText}>Buyer: Confirm Delivered & Release</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ))}
     </ScrollView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  container:{padding:20, paddingTop:60},
-  logo:{fontSize:24,fontWeight:'900',color:'#0F7A4A',marginBottom:10},
-  sub:{color:'#666',marginBottom:20},
-  input:{borderWidth:1,borderColor:'#ddd',padding:14,borderRadius:12,marginBottom:12},
-  btn:{backgroundColor:'#D4AF37',padding:15,borderRadius:12,alignItems:'center',marginTop:6},
-  btnText:{fontWeight:'700',color:'#fff'},
-  card:{backgroundColor:'#f8f8f8',padding:15,borderRadius:16,marginTop:20},
-  title:{fontWeight:'700',marginBottom:10},
-  tx:{backgroundColor:'#fff',padding:12,borderRadius:12,marginBottom:10}
-})
+  container: { flex: 1, backgroundColor: '#f5f9f6' },
+  logo: { fontSize: 24, fontWeight: 'bold', color: '#0F7A4A', textAlign: 'center', marginTop: 40 },
+  sub: { textAlign: 'center', color: '#666', marginBottom: 20 },
+  card: { backgroundColor: 'white', padding: 20, borderRadius: 15, elevation: 2, marginBottom: 20 },
+  label: { fontWeight: '600', marginTop: 10 },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginTop: 5 },
+  button: { backgroundColor: '#0F7A4A', padding: 15, borderRadius: 10, marginTop: 20, alignItems: 'center' },
+  buttonText: { color: 'white', fontWeight: 'bold' },
+  hint: { fontSize: 11, color: '#888', marginTop: 10, textAlign: 'center' },
+  txCard: { backgroundColor: 'white', padding: 15, borderRadius: 10, marginBottom: 10 },
+  txAmount: { fontSize: 18, fontWeight: 'bold' },
+  status: { color: '#0F7A4A', marginTop: 5, fontWeight: '600' },
+  deliveredBtn: { backgroundColor: '#0F7A4A', padding: 12, borderRadius: 8, marginTop: 10, alignItems: 'center' }
+});
