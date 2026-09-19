@@ -1,13 +1,7 @@
 {
-  "cli": {
-    "version": ">= 5.9.3",
-    "appVersionSource": "remote"
-  },
+  "cli": { "version": ">= 5.9.3", "appVersionSource": "remote" },
   "build": {
     "preview": { "distribution": "internal" },
-    "production": {
-      "distribution": "store",
-      "autoIncrement": true
-    }
+    "production": { "distribution": "store", "autoIncrement": true }
   }
 }
