@@ -25,15 +25,14 @@
         "foregroundImage": "./app-icon.jpg",
         "backgroundColor": "#0F7A4A"
       },
-      "package": "com.escrowlockgold.app",
-      "permissions": []
+      "package": "com.escrowlockgold.app"
     },
     "web": {
       "favicon": "./app-icon.jpg"
     },
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "5425fbdd-0fd1-442b-a1a3-b7c954c8bdd2"
       }
     }
   }
