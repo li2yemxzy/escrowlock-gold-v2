@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./icon.png",
     "scheme": "escrowlockgold",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./icon.png",
       "resizeMode": "contain",
@@ -18,14 +19,19 @@
     },
     "android": {
       "package": "com.escrowlockgold.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./icon.png",
         "backgroundColor": "#0F7A4A"
-      }
+      },
+      "permissions": ["android.permission.INTERNET"]
     },
-    "web": {
-      "favicon": "./icon.png"
+    "web": { "favicon": "./icon.png" },
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "5425fbdd-0fd1-442b-a1a3-b7c954c8bdd2"
+      }
     },
     "sdkVersion": "54.0.0"
   }
