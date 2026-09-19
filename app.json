@@ -1,29 +1,39 @@
 {
   "expo": {
     "name": "EscrowLock Gold",
-    "slug": "escrowlock-gold-v2",
+    "slug": "escrowlock-gold",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./app-icon.png",
+    "icon": "./app-icon.jpg",
+    "scheme": "escrowlockgold",
+    "userInterfaceStyle": "light",
     "splash": {
-      "image": "./app-icon.png",
+      "image": "./app-icon.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#0F7A4A"
     },
-    "android": {
-      "package": "com.escrowlock.gold",
-      "adaptiveIcon": {
-        "foregroundImage": "./app-icon.png",
-        "backgroundColor": "#0F7A4A"
-      }
-    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./app-icon.jpg",
+      "bundleIdentifier": "com.escrowlockgold.app"
     },
-    "platforms": ["android", "ios", "web"],
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./app-icon.jpg",
+        "backgroundColor": "#0F7A4A"
+      },
+      "package": "com.escrowlockgold.app",
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./app-icon.jpg"
+    },
     "extra": {
       "eas": {
-        "projectId": "5425fbdd-0fd1-442b-a1a3-b7c954c8bdd2"
+        "projectId": "your-project-id-here"
       }
     }
   }
