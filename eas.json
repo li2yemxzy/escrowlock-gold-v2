@@ -5,11 +5,15 @@
   },
   "build": {
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "node": "20.19.4",
+      "yarn": "1.22.22"
     },
     "production": {
       "distribution": "store",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "node": "20.19.4",
+      "yarn": "1.22.22"
     }
   }
 }
