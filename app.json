@@ -24,11 +24,9 @@
         "backgroundColor": "#0F7A4A"
       }
     },
-    "web": { "favicon": "./icon.png" },
-    "extra": {
-      "eas": {
-        "projectId": "5425fbdd-0fd1-442b-a1a3-b7c954c8bdd2"
-      }
-    }
+    "web": {
+      "favicon": "./icon.png"
+    },
+    "sdkVersion": "54.0.0"
   }
 }
