@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "EscrowLock Gold V2",
-    "slug": "escrowlock-gold-v2",
+    "slug": "escrowlock",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./icon.png",
@@ -19,16 +19,18 @@
     },
     "android": {
       "package": "com.escrowlockgold.app",
-      "versionCode": 5,
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./icon.png",
         "backgroundColor": "#0F7A4A"
       }
     },
-    "web": { "favicon": "./icon.png" },
+    "web": {
+      "favicon": "./icon.png"
+    },
     "extra": {
       "eas": {
-        "projectId": "e9a6c9d8-773b-4555-9282-2a1fe7fa35ab"
+        "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab"
       }
     }
   }
