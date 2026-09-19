@@ -1,23 +1,7 @@
 {
-  "cli": {
-    "version": ">= 5.9.3",
-    "appVersionSource": "remote"
-  },
+  "cli": { "version": ">= 5.9.3" },
   "build": {
-    "preview": {
-      "distribution": "internal",
-      "node": "20.19.4",
-      "cache": {
-        "disabled": true
-      }
-    },
-    "production": {
-      "distribution": "store",
-      "autoIncrement": true,
-      "node": "20.19.4"
-    }
-  },
-  "submit": {
-    "production": {}
+    "preview": { "distribution": "internal", "node": "18.18.0" },
+    "production": { "distribution": "store", "autoIncrement": true, "node": "18.18.0" }
   }
 }
