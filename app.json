@@ -3,25 +3,29 @@
     "name": "EscrowLock Gold V2",
     "slug": "escrowlock-gold-v2",
     "version": "1.0.1",
-    "icon": "./icon.png",
-    "splash": { "image": "./icon.png", "resizeMode": "contain", "backgroundColor": "#0F7A4A" },
+    "sdkVersion": "54.0.0",
+    "platforms": ["android"],
     "android": {
       "package": "com.escrowlockgold.app",
-      "versionCode": 10,
-      "adaptiveIcon": { "foregroundImage": "./icon.png", "backgroundColor": "#0F7A4A" }
+      "versionCode": 11,
+      "adaptiveIcon": {
+        "backgroundColor": "#0F7A4A"
+      }
     },
     "plugins": [
       [
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "2.0.21",
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35
+            "kotlinVersion": "2.0.21"
           }
         }
       ]
     ],
-    "extra": { "eas": { "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab" } }
+    "extra": {
+      "eas": {
+        "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab"
+      }
+    }
   }
 }
