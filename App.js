@@ -1,70 +1,21 @@
-                              
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export default function App(){
-  const [user,setUser]=useState(null);
-  const [email,setEmail]=useState('');
-  const [balance,setBalance]=useState(0);
-  const [view,setView]=useState('wallet');
-
-  useEffect(function(){
-    AsyncStorage.getItem('user').then(function(u){ if(u) setUser(JSON.parse(u)); });
-    AsyncStorage.getItem('bal').then(function(b){ if(b) setBalance(parseInt(b)); });
-  },[]);
-
-  const login = function(){
-    if(email.indexOf('@')===-1){ Alert.alert('Email'); return; }
-    const u={email:email.toLowerCase()};
-    setUser(u);
-    AsyncStorage.setItem('user', JSON.stringify(u));
-  };
-
-  const fund = function(){
-    const nb = balance + 10000;
-    setBalance(nb);
-    AsyncStorage.setItem('bal', ''+nb);
-    Alert.alert('Funded N10000 - Paystack would credit here');
-  };
-
-  const withdraw = function(){
-    if(balance===0){ Alert.alert('No funds'); return; }
-    Alert.alert('Withdraw N'+balance+' to bank - Paystack Transfer');
-    setBalance(0);
-    AsyncStorage.setItem('bal','0');
-  };
-
-  if(!user){
-    return(
-      <View style={s.c}>
-        <Text style={s.h1}>EscrowLock Wallet</Text>
-        <TextInput style={s.in} placeholder="Email" value={email} onChangeText={setEmail} />
-        <TouchableOpacity style={s.btn} onPress={login}><Text style={s.bt}>Enter</Text></TouchableOpacity>
-      </View>
-    );
-  }
-
-  return(
-    <View style={s.c}>
-      <Text style={s.h1}>Wallet N{balance}</Text>
-      <Text>{user.email}</Text>
-      <TouchableOpacity style={s.btn} onPress={fund}><Text style={s.bt}>Fund Wallet (Paystack)</Text></TouchableOpacity>
-      <TouchableOpacity style={[s.btn,{backgroundColor:'green'}]} onPress={withdraw}><Text style={s.bt}>Withdraw to Any Bank</Text></TouchableOpacity>
-      <Text style={s.sm}>Step 1 make this build. Step 2 we add ESCROW HOLD logic.</Text>
-    </View>
-  );
-}
-const s=StyleSheet.create({
-  c:{flex:1,padding:20,paddingTop:50},
+                           
+           const s = StyleSheet.create({
+  c:{flex:1,padding:12,paddingTop:35,backgroundColor:'#f5f6f8'},
   h1:{fontSize:20,fontWeight:'bold'},
-  sm:{fontSize:11,color:'#666',marginTop:10},
-  in:{borderWidth:1,borderColor:'#ccc',padding:12,marginVertical:10,borderRadius:8},
-  btn:{backgroundColor:'#111',padding:14,borderRadius:8,marginTop:10,alignItems:'center'},
-  bt:{color:'#fff',fontWeight:'bold'}
-});
-                                          
-                            
+  h2:{fontWeight:'bold'},
+  b:{fontWeight:'bold'},
+  sm:{fontSize:11,color:'#666'},
+  big:{fontSize:22,fontWeight:'bold'},
+  tabs:{flexDirection:'row',backgroundColor:'#ddd',borderRadius:8,marginVertical:8},
+  tab:{flex:1,padding:10,alignItems:'center'},
+  ta:{backgroundColor:'#111'},
+  in:{backgroundColor:'#fff',borderWidth:1,borderColor:'#ddd',borderRadius:8,padding:12,marginVertical:5},
+  btn:{backgroundColor:'#111',padding:13,borderRadius:8,alignItems:'center',marginVertical:6},
+  bt:{color:'#fff',fontWeight:'bold'},
+  card:{backgroundColor:'#fff',padding:12,borderRadius:10,marginVertical:5},
+  warn:{backgroundColor:'#fff3cd',padding:8,borderRadius:6,marginTop:6},
+  ok:{color:'green',fontWeight:'bold'}
+});                 
                                                   
                                                     
                                                                 
