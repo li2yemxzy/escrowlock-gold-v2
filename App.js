@@ -1,171 +1,232 @@
-
-             import React, {useState,useEffect} from 'react';
-import {View,Text,TextInput,TouchableOpacity,ScrollView,Alert,StyleSheet} from 'react-native';
+       import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function App(){
-  const [user,setUser]=useState(null); const [email,setEmail]=useState('');
-  const [escrows,setEscrows]=useState([]); const [wallets,setWallets]=useState({}); 
-  const [holds,setHolds]=useState({}); 
-  const [view,setView]=useState('orders'); const [sel,setSel]=useState(null);
-  const [buyerEmail,setBuyerEmail]=useState(''); const [amount,setAmount]=useState(''); 
-  const [item,setItem]=useState(''); const [joinId,setJoinId]=useState(''); 
-  const [fundAmt,setFundAmt]=useState('');
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [email, setEmail] = useState('');
+  const [escrows, setEscrows] = useState([]);
+  const [wallets, setWallets] = useState({});
+  const [view, setView] = useState('orders');
+  const [sel, setSel] = useState(null);
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [amount, setAmount] = useState('');
+  const [item, setItem] = useState('');
+  const [joinId, setJoinId] = useState('');
+  const [fundAmt, setFundAmt] = useState('');
 
-  useEffect(()=>{(async()=>{ 
-    const u=await AsyncStorage.getItem('u'); 
-    const e=await AsyncStorage.getItem('e'); 
-    const w=await AsyncStorage.getItem('w'); 
-    const h=await AsyncStorage.getItem('h'); 
-    if(u) setUser(JSON.parse(u)); 
-    if(e) setEscrows(JSON.parse(e)); 
-    if(w) setWallets(JSON.parse(w)); 
-    if(h) setHolds(JSON.parse(h)); 
-  })()},[]);
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  const saveW=async(n)=>{setWallets(n); await AsyncStorage.setItem('w',JSON.stringify(n));}
-  const saveE=async(n)=>{setEscrows(n); await AsyncStorage.setItem('e',JSON.stringify(n));}
-  const saveH=async(n)=>{setHolds(n); await AsyncStorage.setItem('h',JSON.stringify(n));}
+  const loadData = async () => {
+    try {
+      const u = await AsyncStorage.getItem('u');
+      const e = await AsyncStorage.getItem('e');
+      const w = await AsyncStorage.getItem('w');
+      if (u) setUser(JSON.parse(u));
+      if (e) setEscrows(JSON.parse(e));
+      if (w) setWallets(JSON.parse(w));
+    } catch (err) {}
+  };
 
-  const myBalance = wallets[user?.email] || 0;
-  const myOrders = escrows.filter(e=> e.sellerEmail===user?.email || e.buyerEmail===user?.email);
+  const saveWallets = async (n) => {
+    setWallets(n);
+    await AsyncStorage.setItem('w', JSON.stringify(n));
+  };
 
-  const login=async()=>{ 
-    if(!email.includes('@')) return Alert.alert('Valid Email'); 
-    const u={email:email.toLowerCase()}; 
-    setUser(u); 
-    await AsyncStorage.setItem('u',JSON.stringify(u)); 
-    if(!wallets[u.email]){
-      const nw={...wallets,[u.email]:0}; 
-      await saveW(nw);
-    } 
-  }
+  const saveEscrows = async (n) => {
+    setEscrows(n);
+    await AsyncStorage.setItem('e', JSON.stringify(n));
+  };
 
-  const fundWallet=async()=>{
-    const amt=parseInt(fundAmt); if(!amt) return Alert.alert('Enter Amount');
-    const nw={...wallets,[user.email]:(wallets[user.email]||0)+amt};
-    await saveW(nw); setFundAmt('');
-    Alert.alert('Wallet Funded','Paystack credited N'+amt+' to your EscrowLock wallet');
-  }
+  const myBalance = user ? (wallets[user.email] || 0) : 0;
+  const myOrders = escrows.filter(o => o.sellerEmail === user?.email || o.buyerEmail === user?.email);
 
-  const createOrder=async()=>{
-    if(!buyerEmail||!amount||!item) return Alert.alert('Fill all fields');
-    const id='ESC-'+Math.floor(100000+Math.random()*900000);
-    const o={id,sellerEmail:user.email,buyerEmail:buyerEmail.toLowerCase(),amount:parseInt(amount),item,status:'WAITING'};
-    await saveE([...escrows,o]); 
-    setBuyerEmail('');setAmount('');setItem('');
+  const login = async () => {
+    if (!email.includes('@')) {
+      Alert.alert('Enter valid email');
+      return;
+    }
+    const u = { email: email.toLowerCase().trim() };
+    setUser(u);
+    await AsyncStorage.setItem('u', JSON.stringify(u));
+    const current = wallets[u.email] || 0;
+    if (wallets[u.email] === undefined) {
+      const nw = { ...wallets, [u.email]: 0 };
+      await saveWallets(nw);
+    }
+  };
+
+  const fundWallet = async () => {
+    const amt = parseInt(fundAmt);
+    if (!amt) {
+      Alert.alert('Enter amount');
+      return;
+    }
+    const nw = { ...wallets, [user.email]: (wallets[user.email] || 0) + amt };
+    await saveWallets(nw);
+    setFundAmt('');
+    Alert.alert('Wallet Funded', 'Paystack credited N' + amt);
+  };
+
+  const createOrder = async () => {
+    if (!buyerEmail || !amount || !item) {
+      Alert.alert('Fill all');
+      return;
+    }
+    const id = 'ESC-' + Math.floor(100000 + Math.random() * 900000);
+    const o = {
+      id: id,
+      sellerEmail: user.email,
+      buyerEmail: buyerEmail.toLowerCase().trim(),
+      amount: parseInt(amount),
+      item: item,
+      status: 'WAITING'
+    };
+    const ne = [...escrows, o];
+    await saveEscrows(ne);
+    setBuyerEmail('');
+    setAmount('');
+    setItem('');
     setView('orders');
-    Alert.alert('Created '+id,'Send this ID to buyer on WhatsApp');
-  }
+    Alert.alert('Created', id + ' Send to buyer on WhatsApp');
+  };
 
-  const payFromWallet=async()=>{
-    if(myBalance < sel.amount) return Alert.alert('Low Balance','Fund wallet. Balance N'+myBalance);
-    const nw={...wallets,[user.email]:wallets[user.email]-sel.amount};
-    await saveW(nw);
-    const nh={...holds,[sel.id]:sel.amount};
-    await saveH(nh);
-    const upd=escrows.map(e=>e.id===sel.id?{...e,status:'LOCKED'}:e);
-    await saveE(upd); setSel({...sel,status:'LOCKED'});
-    Alert.alert('Locked 🔒','N'+sel.amount+' moved to Escrow HOLD. Seller can deliver.');
-  }
+  const payFromWallet = async () => {
+    if (myBalance < sel.amount) {
+      Alert.alert('Low balance', 'Fund wallet. Balance N' + myBalance);
+      return;
+    }
+    const nw = { ...wallets, [user.email]: wallets[user.email] - sel.amount };
+    await saveWallets(nw);
+    const upd = escrows.map(e => e.id === sel.id ? { ...e, status: 'LOCKED' } : e);
+    await saveEscrows(upd);
+    setSel({ ...sel, status: 'LOCKED' });
+    Alert.alert('Locked', 'N' + sel.amount + ' in escrow HOLD');
+  };
 
-  const confirmDelivery=async()=>{
-    const amt=holds[sel.id];
-    const sellerBal = wallets[sel.sellerEmail]||0;
-    const nw={...wallets,[sel.sellerEmail]:sellerBal+amt};
-    await saveW(nw);
-    const nh={...holds}; delete nh[sel.id]; await saveH(nh);
-    const upd=escrows.map(e=>e.id===sel.id?{...e,status:'RELEASED'}:e);
-    await saveE(upd); setSel({...sel,status:'RELEASED'});
-    Alert.alert('Delivered ✅','Paystack credited seller wallet N'+amt+'. Seller can withdraw to any bank.');
-  }
+  const confirmDelivery = async () => {
+    const sellerBal = wallets[sel.sellerEmail] || 0;
+    const nw = { ...wallets, [sel.sellerEmail]: sellerBal + sel.amount };
+    await saveWallets(nw);
+    const upd = escrows.map(e => e.id === sel.id ? { ...e, status: 'RELEASED' } : e);
+    await saveEscrows(upd);
+    setSel({ ...sel, status: 'RELEASED' });
+    Alert.alert('Released', 'Paystack credited seller wallet N' + sel.amount);
+  };
 
-  const withdraw=async()=>{
-    if(myBalance===0) return Alert.alert('No funds');
-    const nw={...wallets,[user.email]:0};
-    await saveW(nw);
-    Alert.alert('Withdraw Initiated','N'+myBalance+' sent to your bank via Paystack Transfer');
-  }
+  const withdraw = async () => {
+    if (myBalance === 0) {
+      Alert.alert('No funds');
+      return;
+    }
+    const nw = { ...wallets, [user.email]: 0 };
+    await saveWallets(nw);
+    Alert.alert('Withdraw', 'N' + myBalance + ' sent to bank via Paystack Transfer');
+  };
 
-  if(!user) return (
-    <View style={s.c}>
-      <Text style={s.h1}>EscrowLock Wallet</Text>
-      <Text style={s.sm}>Buyer funds wallet -> pays to HOLD -> seller delivers -> buyer confirms -> Paystack credits seller wallet -> withdraw to any bank</Text>
-      <TextInput style={s.in} placeholder="Your Email" value={email} onChangeText={setEmail} autoCapitalize='none'/>
-      <TouchableOpacity style={s.btn} onPress={login}><Text style={s.bt}>Enter EscrowLock</Text></TouchableOpacity>
-    </View>
-  );
-
-  return(
-    <View style={s.c}>
-      <Text style={s.h2}>EscrowLock • Wallet Model</Text>
-      <Text style={s.sm}>{user.email} • Wallet N{myBalance.toLocaleString()}</Text>
-      <View style={s.tabs}>
-        <TouchableOpacity style={[s.tab,view==='orders'&&s.ta]} onPress={()=>setView('orders')}><Text>Orders</Text></TouchableOpacity>
-        <TouchableOpacity style={[s.tab,view==='wallet'&&s.ta]} onPress={()=>setView('wallet')}><Text>Wallet</Text></TouchableOpacity>
-        <TouchableOpacity style={[s.tab,view==='create'&&s.ta]} onPress={()=>setView('create')}><Text>Create</Text></TouchableOpacity>
-        <TouchableOpacity style={[s.tab,view==='join'&&s.ta]} onPress={()=>setView('join')}><Text>Join</Text></TouchableOpacity>
+  if (!user) {
+    return (
+      <View style={s.c}>
+        <Text style={s.h1}>EscrowLock Wallet</Text>
+        <Text style={s.sm}>Buyer funds wallet first, then pays seller via escrow hold</Text>
+        <TextInput style={s.in} placeholder="Your Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
+        <TouchableOpacity style={s.btn} onPress={login}>
+          <Text style={s.bt}>Enter</Text>
+        </TouchableOpacity>
       </View>
+    );
+  }
+
+  return (
+    <View style={s.c}>
+      <Text style={s.h2}>EscrowLock Wallet - No Timer</Text>
+      <Text style={s.sm}>{user.email} - Wallet N{myBalance}</Text>
+
+      <View style={s.tabs}>
+        <TouchableOpacity style={[s.tab, view === 'orders' && s.ta]} onPress={() => setView('orders')}><Text>Orders</Text></TouchableOpacity>
+        <TouchableOpacity style={[s.tab, view === 'wallet' && s.ta]} onPress={() => setView('wallet')}><Text>Wallet</Text></TouchableOpacity>
+        <TouchableOpacity style={[s.tab, view === 'create' && s.ta]} onPress={() => setView('create')}><Text>Create</Text></TouchableOpacity>
+        <TouchableOpacity style={[s.tab, view === 'join' && s.ta]} onPress={() => setView('join')}><Text>Join</Text></TouchableOpacity>
+      </View>
+
       <ScrollView>
-        {view==='wallet' && (
+        {view === 'wallet' && (
           <View style={s.card}>
-            <Text style={s.b}>My EscrowLock Wallet</Text>
+            <Text style={s.b}>My Wallet (Paystack Balance)</Text>
             <Text style={s.big}>N{myBalance.toLocaleString()}</Text>
-            <TextInput style={s.in} placeholder="Amount to fund" value={fundAmt} onChangeText={setFundAmt} keyboardType='numeric'/>
-            <TouchableOpacity style={s.btn} onPress={fundWallet}><Text style={s.bt}>Fund Wallet (Paystack)</Text></TouchableOpacity>
-            <TouchableOpacity style={[s.btn,{backgroundColor:'#0a7'}]} onPress={withdraw}><Text style={s.bt}>Withdraw N{myBalance} to Any Bank</Text></TouchableOpacity>
+            <TextInput style={s.in} placeholder="Amount to fund" value={fundAmt} onChangeText={setFundAmt} keyboardType="numeric" />
+            <TouchableOpacity style={s.btn} onPress={fundWallet}><Text style={s.bt}>Fund Wallet via Paystack</Text></TouchableOpacity>
+            <TouchableOpacity style={[s.btn, { backgroundColor: '#0a7' }]} onPress={withdraw}><Text style={s.bt}>Withdraw N{myBalance} to Any Bank</Text></TouchableOpacity>
           </View>
         )}
-        {view==='orders' && myOrders.map(o=>(
-          <TouchableOpacity key={o.id} style={s.card} onPress={()=>{setSel(o); setView('detail')}}>
+
+        {view === 'orders' && myOrders.map(o => (
+          <TouchableOpacity key={o.id} style={s.card} onPress={() => { setSel(o); setView('detail'); }}>
             <Text style={s.b}>{o.id} - {o.item}</Text>
             <Text>N{o.amount} - {o.status}</Text>
           </TouchableOpacity>
         ))}
-        {view==='create' && (
-          <View>
-            <TextInput style={s.in} placeholder="Buyer Email" value={buyerEmail} onChangeText={setBuyerEmail} autoCapitalize='none'/>
-            <TextInput style={s.in} placeholder="Amount" value={amount} onChangeText={setAmount} keyboardType='numeric'/>
-            <TextInput style={s.in} placeholder="Item/Property" value={item} onChangeText={setItem}/>
+
+        {view === 'create' && (
+          <View style={s.card}>
+            <TextInput style={s.in} placeholder="Buyer Email" value={buyerEmail} onChangeText={setBuyerEmail} autoCapitalize="none" />
+            <TextInput style={s.in} placeholder="Amount" value={amount} onChangeText={setAmount} keyboardType="numeric" />
+            <TextInput style={s.in} placeholder="Item/Property" value={item} onChangeText={setItem} />
             <TouchableOpacity style={s.btn} onPress={createOrder}><Text style={s.bt}>Create ESC ID</Text></TouchableOpacity>
           </View>
         )}
-        {view==='join' && (
-          <View>
-            <TextInput style={s.in} placeholder="ESC ID" value={joinId} onChangeText={setJoinId} autoCapitalize='characters'/>
-            <TouchableOpacity style={s.btn} onPress={()=>{ const f=escrows.find(e=>e.id===joinId.toUpperCase()); if(!f) return Alert.alert('Not found'); setSel(f); setView('detail');}}><Text style={s.bt}>Join Order</Text></TouchableOpacity>
+
+        {view === 'join' && (
+          <View style={s.card}>
+            <TextInput style={s.in} placeholder="ESC ID" value={joinId} onChangeText={setJoinId} autoCapitalize="characters" />
+            <TouchableOpacity style={s.btn} onPress={() => {
+              const f = escrows.find(e => e.id === joinId.toUpperCase().trim());
+              if (!f) { Alert.alert('Not found'); return; }
+              setSel(f); setView('detail');
+            }}><Text style={s.bt}>Join Order</Text></TouchableOpacity>
           </View>
         )}
-        {view==='detail' && sel && (
+
+        {view === 'detail' && sel && (
           <View style={s.card}>
             <Text style={s.b}>{sel.id}</Text>
-            <Text>Item: {sel.item} N{sel.amount}</Text>
+            <Text>Item: {sel.item}</Text>
+            <Text>Amount: N{sel.amount}</Text>
             <Text>Status: {sel.status}</Text>
-            <Text style={s.sm}>Your Wallet N{myBalance}</Text>
-            {sel.status==='WAITING' && sel.buyerEmail===user.email && <TouchableOpacity style={s.btn} onPress={payFromWallet}><Text style={s.bt}>Pay N{sel.amount} FROM MY WALLET to HOLD</Text></TouchableOpacity>}
-            {sel.status==='LOCKED' && sel.buyerEmail===user.email && <TouchableOpacity style={[s.btn,{backgroundColor:'#0a7'}]} onPress={confirmDelivery}><Text style={s.bt}>I Got Goods - Release to Seller Wallet</Text></TouchableOpacity>}
-            {sel.status==='LOCKED' && <Text style={s.warn}>HOLD N{holds[sel.id]||sel.amount} locked in Paystack</Text>}
-            {sel.status==='RELEASED' && <Text style={s.ok}>✅ Seller wallet credited - can withdraw to any bank</Text>}
+            {sel.status === 'WAITING' && sel.buyerEmail === user.email && (
+              <TouchableOpacity style={s.btn} onPress={payFromWallet}><Text style={s.bt}>Pay N{sel.amount} FROM MY WALLET to HOLD</Text></TouchableOpacity>
+            )}
+            {sel.status === 'LOCKED' && sel.buyerEmail === user.email && (
+              <TouchableOpacity style={[s.btn, { backgroundColor: '#0a7' }]} onPress={confirmDelivery}><Text style={s.bt}>I Got Goods - Credit Seller Wallet</Text></TouchableOpacity>
+            )}
+            {sel.status === 'LOCKED' && <Text style={s.warn}>Funds locked in Paystack HOLD</Text>}
+            {sel.status === 'RELEASED' && <Text style={s.ok}>Seller wallet credited - can withdraw</Text>}
           </View>
         )}
       </ScrollView>
     </View>
   );
 }
-const s=StyleSheet.create({
-  c:{flex:1,padding:12,paddingTop:35,backgroundColor:'#f5f6f8'},
-  h1:{fontSize:20,fontWeight:'bold'},h2:{fontWeight:'bold'},b:{fontWeight:'bold'},
-  sm:{fontSize:11,color:'#666'},big:{fontSize:22,fontWeight:'bold'},
-  tabs:{flexDirection:'row',backgroundColor:'#ddd',borderRadius:8,marginVertical:8},
-  tab:{flex:1,padding:10,alignItems:'center',borderRadius:8},ta:{backgroundColor:'#111'},
-  in:{backgroundColor:'#fff',borderWidth:1,borderColor:'#ddd',borderRadius:8,padding:12,marginVertical:5},
-  btn:{backgroundColor:'#111',padding:13,borderRadius:8,alignItems:'center',marginVertical:6},
-  bt:{color:'#fff',fontWeight:'bold'},
-  card:{backgroundColor:'#fff',padding:12,borderRadius:10,marginVertical:5},
-  warn:{backgroundColor:'#fff3cd',padding:8,borderRadius:6,marginTop:6},
-  ok:{color:'green',fontWeight:'bold'}
-});     
-                      
+
+const s = StyleSheet.create({
+  c: { flex: 1, padding: 12, paddingTop: 40, backgroundColor: '#f5f6f8' },
+  h1: { fontSize: 20, fontWeight: 'bold' },
+  h2: { fontWeight: 'bold', fontSize: 14 },
+  b: { fontWeight: 'bold' },
+  sm: { fontSize: 11, color: '#666', marginVertical: 2 },
+  big: { fontSize: 22, fontWeight: 'bold', marginVertical: 6 },
+  tabs: { flexDirection: 'row', backgroundColor: '#ddd', borderRadius: 8, marginVertical: 8 },
+  tab: { flex: 1, padding: 10, alignItems: 'center', borderRadius: 8 },
+  ta: { backgroundColor: '#111' },
+  in: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, marginVertical: 5 },
+  btn: { backgroundColor: '#111', padding: 13, borderRadius: 8, alignItems: 'center', marginVertical: 6 },
+  bt: { color: '#fff', fontWeight: 'bold' },
+  card: { backgroundColor: '#fff', padding: 12, borderRadius: 10, marginVertical: 5 },
+  warn: { backgroundColor: '#fff3cd', padding: 8, borderRadius: 6, marginTop: 6 },
+  ok: { color: 'green', fontWeight: 'bold', marginTop: 6 }
+});
               
                               
 
