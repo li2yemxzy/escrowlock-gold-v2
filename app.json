@@ -2,18 +2,13 @@
   "expo": {
     "name": "escrowlock-gold-v2",
     "slug": "escrowlock-gold-v2",
-    "owner": "olakitan",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "platforms": ["android"],
     "android": {
       "package": "com.escrowlock.goldv2",
-      "versionCode": 16
-    },
-    "extra": {
-      "eas": {
-        "projectId": "d2d4d29e-a421-4813-b003-ca2ba3f86f38"
-      }
+      "versionCode": 18
     }
   }
 }
