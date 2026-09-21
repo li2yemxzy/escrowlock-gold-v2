@@ -1,26 +1,24 @@
+cat > app.json << 'EOF'
 {
   "expo": {
-    "name": "EscrowLock Gold V2",
+    "name": "escrowlock-gold-v2",
     "slug": "escrowlock-gold-v2",
-    "version": "1.0.1",
-    "owner": "olaitan001s-team",
-    "icon": "./icon.png",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["android"],
     "android": {
-      "package": "com.escrowlockgold.app",
-      "versionCode": 14,
-      "adaptiveIcon": {
-        "foregroundImage": "./icon.png",
-        "backgroundColor": "#0F7A4A"
-      }
+      "package": "com.escrowlock.goldv2",
+      "versionCode": 15
     },
     "extra": {
       "eas": {
-        "projectId": "8a64c9d8-f73b-4f55-92e2-414fef7a35ab"
+        "projectId": "d2d4d29e-a421-4813-b003-ca2ba3f86f38"
       }
-    },
-    "plugins": [
-      "expo-secure-store",
-      "expo-asset"
-    ]
+    }
   }
 }
+EOF
+
+git add app.json
+git commit -m "fix: set correct projectId d2d4d29e for new account"
+git push origin main
