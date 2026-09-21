@@ -1,12 +1,61 @@
-                
-          import React, { useState } from 'react';
+                                    
+      import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-export default function App(){const [w,sW]=useState(0);const [a,sA]=useState('');const [st,sSt]=useState('IDLE');const [e,sE]=useState(0);
-const fund=()=>{const v=parseFloat(a);if(!v)return;sW(w+v);sA('');};const pay=()=>{const v=parseFloat(a);if(!v||v>w)return;sW(w-v);sE(v);sSt('HOLD');sA('');};const rel=()=>{sW(w+e);sE(0);sSt('RELEASED');};
-return(<ScrollView contentContainerStyle={{padding:16,paddingTop:30,backgroundColor:'#0a0a0a',flexGrow:1}}><Text style={s.t}>EscrowLock Gold V2</Text><View style={s.c}><Text style={s.l}>Wallet: ${w.toFixed(2)}</Text><Text style={s.l}>Escrow: ${e.toFixed(2)} | {st}</Text></View><View style={s.c}><TextInput value={a} onChangeText={sA} keyboardType="numeric" placeholder="0.00" placeholderTextColor="#666" style={s.i}/><TouchableOpacity onPress={fund} style={s.b}><Text style={s.bt}>Fund Wallet</Text></TouchableOpacity><TouchableOpacity onPress={pay} style={s.b2}><Text style={s.bt}>Pay to HOLD</Text></TouchableOpacity><TouchableOpacity onPress={rel} style={s.b3}><Text style={s.bt}>Release</Text></TouchableOpacity></View></ScrollView>);}
-const s=StyleSheet.create({t:{fontSize:22,fontWeight:'bold',color:'#fff',marginBottom:12},c:{padding:16,backgroundColor:'#111',borderRadius:8,marginBottom:8,borderWidth:1,borderColor:'#333'},l:{fontSize:14,color:'#fff',marginBottom:6},i:{backgroundColor:'#222',color:'#fff',padding:12,borderRadius:8,marginBottom:8},b:{backgroundColor:'#f5ff00',padding:14,borderRadius:8,marginBottom:8},b2:{backgroundColor:'#111',borderWidth:1,borderColor:'#f5ff00',padding:14,borderRadius:8,marginBottom:8},b3:{backgroundColor:'#2a7a2a',padding:14,borderRadius:8},bt:{color:'#fff',fontWeight:'bold',textAlign:'center'}});                                          
-                                                                
-                                                                
+
+export default function App(){
+  const [wallet, setWallet] = useState(0);
+  const [amount, setAmount] = useState('');
+  const [status, setStatus] = useState('IDLE');
+  const [escrow, setEscrow] = useState(0);
+
+  const fund = () => {
+    const v = parseFloat(amount);
+    if(!v) return;
+    setWallet(wallet+v);
+    setAmount('');
+  };
+  const pay = () => {
+    const v = parseFloat(amount);
+    if(!v || v>wallet) return;
+    setWallet(wallet-v);
+    setEscrow(v);
+    setStatus('HOLD');
+    setAmount('');
+  };
+  const release = () => {
+    setWallet(wallet+escrow);
+    setEscrow(0);
+    setStatus('RELEASED');
+  };
+
+  return (
+    <ScrollView contentContainerStyle={s.container}>
+      <Text style={s.title}>EscrowLock Gold V2</Text>
+      <View style={s.card}>
+        <Text style={s.label}>Wallet: ${wallet.toFixed(2)}</Text>
+        <Text style={s.label}>Escrow: ${escrow.toFixed(2)} | {status}</Text>
+      </View>
+      <View style={s.card}>
+        <TextInput value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="0.00" placeholderTextColor="#666" style={s.input} />
+        <TouchableOpacity onPress={fund} style={s.btn}><Text style={s.btnText}>Fund Wallet</Text></TouchableOpacity>
+        <TouchableOpacity onPress={pay} style={s.btn2}><Text style={s.btnText}>Pay to HOLD</Text></TouchableOpacity>
+        <TouchableOpacity onPress={release} style={s.btn3}><Text style={s.btnText}>Release</Text></TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
+
+const s = StyleSheet.create({
+  container:{padding:16,paddingTop:40,backgroundColor:'#0a0a0a',flexGrow:1},
+  title:{fontSize:22,fontWeight:'bold',color:'#fff',marginBottom:12},
+  card:{padding:16,backgroundColor:'#111',borderRadius:8,marginBottom:10,borderWidth:1,borderColor:'#333'},
+  label:{fontSize:14,color:'#fff',marginBottom:6},
+  input:{backgroundColor:'#222',color:'#fff',padding:12,borderRadius:8,marginBottom:8},
+  btn:{backgroundColor:'#f5ff00',padding:14,borderRadius:8,marginBottom:8},
+  btn2:{backgroundColor:'#111',borderWidth:1,borderColor:'#f5ff00',padding:14,borderRadius:8,marginBottom:8},
+  btn3:{backgroundColor:'#2a7a2a',padding:14,borderRadius:8},
+  btnText:{color:'#fff',fontWeight:'bold',textAlign:'center'}
+});                                                          
                                                                     
                                                                           
                                                                                       
