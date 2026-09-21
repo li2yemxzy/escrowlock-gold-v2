@@ -1,22 +1,68 @@
-                           
-           const s = StyleSheet.create({
-  c:{flex:1,padding:12,paddingTop:35,backgroundColor:'#f5f6f8'},
-  h1:{fontSize:20,fontWeight:'bold'},
-  h2:{fontWeight:'bold'},
-  b:{fontWeight:'bold'},
-  sm:{fontSize:11,color:'#666'},
-  big:{fontSize:22,fontWeight:'bold'},
-  tabs:{flexDirection:'row',backgroundColor:'#ddd',borderRadius:8,marginVertical:8},
-  tab:{flex:1,padding:10,alignItems:'center'},
-  ta:{backgroundColor:'#111'},
-  in:{backgroundColor:'#fff',borderWidth:1,borderColor:'#ddd',borderRadius:8,padding:12,marginVertical:5},
-  btn:{backgroundColor:'#111',padding:13,borderRadius:8,alignItems:'center',marginVertical:6},
-  bt:{color:'#fff',fontWeight:'bold'},
-  card:{backgroundColor:'#fff',padding:12,borderRadius:10,marginVertical:5},
-  warn:{backgroundColor:'#fff3cd',padding:8,borderRadius:6,marginTop:6},
-  ok:{color:'green',fontWeight:'bold'}
-});                 
-                                                  
+         
+          import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+
+export default function App(){
+  const [wallet, setWallet] = useState(0);
+  const [amount, setAmount] = useState('');
+  const [status, setStatus] = useState('IDLE');
+  const [escrow, setEscrow] = useState(0);
+
+  const fund = () => {
+    const v = parseFloat(amount);
+    if(!v) return;
+    setWallet(wallet+v);
+    setAmount('');
+  }
+
+  const pay = () => {
+    const v = parseFloat(amount);
+    if(!v || v>wallet) return;
+    setWallet(wallet-v);
+    setEscrow(v);
+    setStatus('HOLD: N');
+    setAmount('');
+  }
+
+  const release = () => {
+    setWallet(wallet+escrow);
+    setEscrow(0);
+    setStatus('RELEASED');
+  }
+
+  return (
+    <ScrollView contentContainerStyle={{padding:16, paddingTop:30, backgroundColor:'#0a0a0a', flexGrow:1}}>
+      <Text style={s.title}>EscrowLock Gold V2 - Build 15</Text>
+      
+      <View style={s.card}>
+        <Text style={s.lb}>Wallet: ${wallet.toFixed(2)}</Text>
+        <Text style={s.lb}>Escrow: ${escrow.toFixed(2)} | {status}</Text>
+      </View>
+
+      <View style={s.card}>
+        <Text style={s.lb}>Amount</Text>
+        <TextInput value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="0.00" placeholderTextColor="#666" style={s.input}/>
+        <TouchableOpacity onPress={fund} style={s.btn}><Text style={s.bt}>Fund Wallet</Text></TouchableOpacity>
+        <TouchableOpacity onPress={pay} style={s.btn2}><Text style={s.bt}>Pay to HOLD</Text></TouchableOpacity>
+        <TouchableOpacity onPress={release} style={s.btn3}><Text style={s.bt}>Confirm Delivery / Release</Text></TouchableOpacity>
+      </View>
+
+      <Text style={s.sn}>Build 15 - Clean</Text>
+    </ScrollView>
+  );
+}
+
+const s = StyleSheet.create({
+  title:{fontSize:22,fontWeight:'bold',color:'#fff',marginBottom:12},
+  card:{padding:16,backgroundColor:'#111',borderRadius:8,marginBottom:8,borderColor:'#333',borderWidth:1},
+  lb:{fontSize:14,color:'#fff',marginBottom:6},
+  input:{backgroundColor:'#222',color:'#fff',padding:12,borderRadius:8,marginBottom:8},
+  btn:{backgroundColor:'#f5ff00',padding:14,borderRadius:8,marginBottom:8},
+  btn2:{backgroundColor:'#111',borderWidth:1,borderColor:'#f5ff00',padding:14,borderRadius:8,marginBottom:8},
+  btn3:{backgroundColor:'#2a7a2a',padding:14,borderRadius:8},
+  bt:{color:'#fff',fontWeight:'bold',textAlign:'center'},
+  sn:{color:'#555',fontSize:11,marginTop:20,textAlign:'center'}
+});                                        
                                                     
                                                                 
                                                                 
