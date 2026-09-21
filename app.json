@@ -1,4 +1,3 @@
-cat > app.json << 'EOF'
 {
   "expo": {
     "name": "escrowlock-gold-v2",
@@ -17,8 +16,3 @@ cat > app.json << 'EOF'
     }
   }
 }
-EOF
-
-git add app.json
-git commit -m "fix: set correct projectId d2d4d29e for new account"
-git push origin main
