@@ -5,14 +5,14 @@
     "owner": "olakiitan",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./icon.png",
     "platforms": ["android"],
     "android": {
       "package": "com.escrowlock.goldv2",
       "versionCode": 25,
-      "icon": "./assets/icon.png",
+      "icon": "./icon.png",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./icon.png",
         "backgroundColor": "#0F7A4A"
       }
     },
