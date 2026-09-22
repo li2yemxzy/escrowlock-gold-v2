@@ -1,160 +1,152 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, StatusBar, ScrollView, Linking } from 'react-native';
-
-// REPLACE WITH YOUR PAYSTACK PUBLIC KEY
-const PAYSTACK_PUBLIC_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxx";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, StatusBar, ScrollView } from 'react-native';
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState('buyer'); // buyer or seller
-  const [authMode, setAuthMode] = useState('register'); // register | login
-  const [form, setForm] = useState({ name:'', email:'', phone:'', password:'', sellerEmail:'', product:'', amount:'', address:'' });
+  const [role, setRole] = useState('buyer');
+  const [isLogin, setIsLogin] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', pass: '', seller: '', product: '', amount: '', address: '' });
   const [escrows, setEscrows] = useState([]);
   const [tab, setTab] = useState('wallet');
 
-  const register = () => {
-    if (!form.name ||!form.email ||!form.phone ||!form.password) return Alert.alert('Fill all fields');
-    setUser({ name: form.name, email: form.email, phone: form.phone, role });
-    Alert.alert('Welcome', `${form.name} registered as ${role.toUpperCase()}`);
+  const doRegister = () => {
+    if (!form.name ||!form.email ||!form.phone ||!form.pass) {
+      Alert.alert('Error', 'Fill all fields');
+      return;
+    }
+    setUser({ name: form.name, email: form.email, phone: form.phone, role: role });
   };
 
-  const login = () => {
-    if (!form.email ||!form.password) return Alert.alert('Enter email & password');
-    // For demo, any login works - in production check backend
-    setUser({ name: form.email.split('@')[0], email: form.email, phone: '080...', role });
+  const doLogin = () => {
+    if (!form.email ||!form.pass) {
+      Alert.alert('Error', 'Enter email and password');
+      return;
+    }
+    setUser({ name: form.email.split('@')[0], email: form.email, phone: '080', role: role });
   };
 
-  const payWithPaystack = () => {
-    if (!form.product ||!form.amount ||!form.sellerEmail) return Alert.alert('Fill product, amount, seller email');
-    const amountKobo = parseInt(form.amount) * 100;
-    // Open Paystack Checkout
-    const paystackUrl = `https://paystack.com/pay/escrowlock?amount=${amountKobo}`;
-    // Simulate payment success for now - replace with real Paystack integration
-    Alert.alert('Paystack', `Pay ₦${form.amount} for ${form.product}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Pay Now', onPress: () => {
-          const newEscrow = {
-            id: Date.now().toString(),
-            product: form.product,
-            amount: form.amount,
-            buyer: user.email,
-            seller: form.sellerEmail,
-            buyerName: user.name,
-            address: form.address,
-            status: 'locked', // locked -> shipped -> delivered -> released
-            date: new Date().toLocaleString(),
-            paystackRef: 'PSK_'+Date.now()
-          };
-          setEscrows([newEscrow,...escrows]);
-          setForm({...form, product:'', amount:'', sellerEmail:'', address:'' });
-          setTab('wallet');
-          Alert.alert('Payment Success', `₦${newEscrow.amount} locked in Escrow. Seller will be notified. Ref: ${newEscrow.paystackRef}`);
-        }
+  const createDeal = () => {
+    if (!form.product ||!form.amount ||!form.seller) {
+      Alert.alert('Error', 'Enter product, amount and seller email');
+      return;
+    }
+    const newDeal = {
+      id: Date.now().toString(),
+      product: form.product,
+      amount: form.amount,
+      buyer: user.email,
+      seller: form.seller,
+      buyerName: user.name,
+      address: form.address,
+      status: 'locked',
+      date: new Date().toLocaleDateString(),
+      ref: 'PSK' + Date.now()
+    };
+    setEscrows([newDeal].concat(escrows));
+    setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: '', product: '', amount: '', address: '' });
+    setTab('wallet');
+    Alert.alert('Paystack Success', 'NGN ' + newDeal.amount + ' locked in Escrow. Ref: ' + newDeal.ref);
+  };
+
+  const changeStatus = (id, next) => {
+    const updated = escrows.map(function(e) {
+      if (e.id === id) {
+        return { id: e.id, product: e.product, amount: e.amount, buyer: e.buyer, seller: e.seller, buyerName: e.buyerName, address: e.address, status: next, date: e.date, ref: e.ref };
       }
-    ]);
-  };
-
-  const updateStatus = (id, newStatus) => {
-    let updated = escrows.map(e => e.id === id? {...e, status: newStatus} : e);
+      return e;
+    });
     setEscrows(updated);
-    if (newStatus === 'delivered') {
-      // Auto pay seller via Paystack Transfer (simulated - in production call your backend /transfer)
-      const escrow = escrows.find(e => e.id === id);
-      Alert.alert('Delivery Confirmed', `Paystack will now pay ₦${escrow.amount} to seller ${escrow.seller} automatically. Transfer initiated!`);
-      setTimeout(() => {
-        setEscrows(prev => prev.map(e => e.id === id? {...e, status: 'released'} : e));
-      }, 1500);
+    if (next === 'delivered') {
+      const esc = escrows.find(function(x){return x.id===id;});
+      Alert.alert('Delivery Confirmed', 'Paystack will pay NGN ' + esc.amount + ' to seller ' + esc.seller + ' automatically!');
+      setTimeout(function(){
+        setEscrows(function(prev){
+          return prev.map(function(e){ if(e.id===id){return { id: e.id, product: e.product, amount: e.amount, buyer: e.buyer, seller: e.seller, buyerName: e.buyerName, address: e.address, status: 'released', date: e.date, ref: e.ref }; } return e; });
+        });
+      }, 1200);
     }
   };
 
-  // AUTH SCREENS
   if (!user) {
     return (
       <ScrollView contentContainerStyle={S.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#000" />
-        <Text style={S.shield}>🛡️</Text>
+        <StatusBar barStyle="light-content" />
+        <Text style={S.shield}>SHIELD</Text>
         <Text style={S.title}>EscrowLock Gold V2</Text>
-        <Text style={S.gold}>Secure Escrow with Paystack</Text>
+        <Text style={S.gold}>Secure Escrow + Paystack</Text>
 
-        <View style={S.roleRow}>
-          <TouchableOpacity style={[S.roleBtn, role==='buyer'&&S.roleActive]} onPress={()=>setRole('buyer')}><Text style={[S.roleText, role==='buyer'&&S.roleTextActive]}>BUYER</Text></TouchableOpacity>
-          <TouchableOpacity style={[S.roleBtn, role==='seller'&&S.roleActive]} onPress={()=>setRole('seller')}><Text style={[S.roleText, role==='seller'&&S.roleTextActive]}>SELLER</Text></TouchableOpacity>
+        <View style={S.row}>
+          <TouchableOpacity style={[S.roleBtn, role==='buyer' && S.roleOn]} onPress={function(){setRole('buyer');}}><Text style={S.roleT}>BUYER</Text></TouchableOpacity>
+          <TouchableOpacity style={[S.roleBtn, role==='seller' && S.roleOn]} onPress={function(){setRole('seller');}}><Text style={S.roleT}>SELLER</Text></TouchableOpacity>
         </View>
 
-        {authMode==='register' && <TextInput style={S.input} placeholder="Full Name" placeholderTextColor="#777" value={form.name} onChangeText={t=>setForm({...form,name:t})} />}
-        <TextInput style={S.input} placeholder="Email" placeholderTextColor="#777" value={form.email} onChangeText={t=>setForm({...form,email:t})} autoCapitalize="none" />
-        <TextInput style={S.input} placeholder="Phone" placeholderTextColor="#777" value={form.phone} onChangeText={t=>setForm({...form,phone:t})} keyboardType="phone-pad" />
-        <TextInput style={S.input} placeholder="Password" placeholderTextColor="#777" value={form.password} onChangeText={t=>setForm({...form,password:t})} secureTextEntry />
+        {!isLogin && <TextInput style={S.input} placeholder="Full Name" placeholderTextColor="#777" value={form.name} onChangeText={function(t){setForm({ name: t, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: form.address });}} />}
+        <TextInput style={S.input} placeholder="Email" placeholderTextColor="#777" value={form.email} onChangeText={function(t){setForm({ name: form.name, email: t, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: form.address });}} autoCapitalize="none" />
+        <TextInput style={S.input} placeholder="Phone" placeholderTextColor="#777" value={form.phone} onChangeText={function(t){setForm({ name: form.name, email: form.email, phone: t, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: form.address });}} />
+        <TextInput style={S.input} placeholder="Password" placeholderTextColor="#777" secureTextEntry value={form.pass} onChangeText={function(t){setForm({ name: form.name, email: form.email, phone: form.phone, pass: t, seller: form.seller, product: form.product, amount: form.amount, address: form.address });}} />
 
-        <TouchableOpacity style={S.btnGold} onPress={authMode==='register'?register:login}>
-          <Text style={S.btnDark}>{authMode==='register'?`REGISTER AS ${role.toUpperCase()}`:'LOGIN'}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={()=>setAuthMode(authMode==='register'?'login':'register')}>
-          <Text style={S.link}>{authMode==='register'?'Have account? Login':'No account? Register'}</Text>
-        </TouchableOpacity>
-        <Text style={S.ver}>Build 30 FINAL • Icon Active • Paystack Integrated</Text>
+        <TouchableOpacity style={S.btnGold} onPress={isLogin? doLogin : doRegister}><Text style={S.btnDark}>{isLogin? 'LOGIN' : 'REGISTER AS ' + role.toUpperCase()}</Text></TouchableOpacity>
+        <TouchableOpacity onPress={function(){setIsLogin(!isLogin);}}><Text style={S.link}>{isLogin? 'No account? Register' : 'Have account? Login'}</Text></TouchableOpacity>
+        <Text style={S.ver}>Build 31 FINAL SAFE BUILD - Icon Active</Text>
       </ScrollView>
     );
   }
 
-  // DASHBOARD
-  const myEscrows = escrows.filter(e => e.buyer===user.email || e.seller===user.email || user.role==='buyer');
-  const totalLocked = escrows.filter(e=>e.status!=='released').reduce((s,e)=>s+parseInt(e.amount||0),0);
-  const totalReleased = escrows.filter(e=>e.status==='released').reduce((s,e)=>s+parseInt(e.amount||0),0);
+  const totalLocked = escrows.filter(function(e){return e.status!=='released';}).reduce(function(s,e){return s+parseInt(e.amount||0);},0);
+  const walletBalance = 50000 - totalLocked;
 
   return (
-    <View style={S.dashContainer}>
-      <StatusBar barStyle="light-content" />
-      <View style={S.header}>
-        <View><Text style={S.hi}>Hi, {user.name}</Text><Text style={S.roleBadge}>{user.role.toUpperCase()} • {user.email}</Text></View>
-        <TouchableOpacity onPress={()=>setUser(null)}><Text style={S.logout}>Logout</Text></TouchableOpacity>
-      </View>
+    <View style={S.dash}>
+      <View style={S.header}><View><Text style={S.hi}>Hi, {user.name}</Text><Text style={S.badge}>{user.role.toUpperCase()} - {user.email}</Text></View><TouchableOpacity onPress={function(){setUser(null);}}><Text style={S.logout}>Logout</Text></TouchableOpacity></View>
 
-      <View style={S.balanceCard}>
-        <Text style={S.bLabel}>Escrow Wallet</Text>
-        <Text style={S.bAmount}>₦{(user.role==='buyer'?50000-totalLocked:totalReleased).toLocaleString()}</Text>
-        <View style={S.bRow}><Text style={S.bSmall}>Locked: ₦{totalLocked.toLocaleString()}</Text><Text style={S.bSmall}>Released: ₦{totalReleased.toLocaleString()}</Text></View>
-      </View>
+      <View style={S.balCard}><Text style={S.bLab}>Escrow Wallet</Text><Text style={S.bAmt}>NGN {walletBalance}</Text><Text style={S.bSm}>Locked: NGN {totalLocked} | Paystack Secured</Text></View>
 
-      <View style={S.tabs}>
-        <TouchableOpacity style={[S.tab, tab==='wallet'&&S.tabActive]} onPress={()=>setTab('wallet')}><Text style={[S.tText, tab==='wallet'&&S.tActive]}>My Deals</Text></TouchableOpacity>
-        {user.role==='buyer' && <TouchableOpacity style={[S.tab, tab==='create'&&S.tabActive]} onPress={()=>setTab('create')}><Text style={[S.tText, tab==='create'&&S.tActive]}>Buy Now</Text></TouchableOpacity>}
-        <TouchableOpacity style={[S.tab, tab==='sales'&&S.tabActive]} onPress={()=>setTab('sales')}><Text style={[S.tText, tab==='sales'&&S.tActive]}>Sales</Text></TouchableOpacity>
-      </View>
+      <View style={S.tabs}><TouchableOpacity style={[S.tab, tab==='wallet' && S.tabOn]} onPress={function(){setTab('wallet');}}><Text style={S.tabT}>Deals</Text></TouchableOpacity><TouchableOpacity style={[S.tab, tab==='create' && S.tabOn]} onPress={function(){setTab('create');}}><Text style={S.tabT}>Buy Now</Text></TouchableOpacity><TouchableOpacity style={[S.tab, tab==='sales' && S.tabOn]} onPress={function(){setTab('sales');}}><Text style={S.tabT}>Sales</Text></TouchableOpacity></View>
 
-      {tab==='create' && user.role==='buyer' && (
-        <ScrollView style={{width:'100%'}}>
-          <View style={S.card}>
-            <Text style={S.cardTitle}>Create Escrow Deal - Pay with Paystack</Text>
-            <TextInput style={S.input} placeholder="Product Name (e.g. iPhone 15 Pro)" placeholderTextColor="#777" value={form.product} onChangeText={t=>setForm({...form,product:t})} />
-            <TextInput style={S.input} placeholder="Amount ₦" placeholderTextColor="#777" value={form.amount} onChangeText={t=>setForm({...form,amount:t})} keyboardType="numeric" />
-            <TextInput style={S.input} placeholder="Seller Email" placeholderTextColor="#777" value={form.sellerEmail} onChangeText={t=>setForm({...form,sellerEmail:t})} autoCapitalize="none" />
-            <TextInput style={S.input} placeholder="Delivery Address" placeholderTextColor="#777" value={form.address} onChangeText={t=>setForm({...form,address:t})} />
-            <TouchableOpacity style={S.btnGold} onPress={payWithPaystack}><Text style={S.btnDark}>PAY ₦{form.amount||'0'} WITH PAYSTACK - LOCK IN ESCROW</Text></TouchableOpacity>
-            <Text style={S.note}>Money is held by EscrowLock. Seller is paid automatically after you confirm delivery.</Text>
-          </View>
-        </ScrollView>
+      {tab==='create'? (
+        <ScrollView style={{width:'100%'}}><View style={S.card}><Text style={S.cardTi}>Create Escrow - Pay with Paystack</Text><TextInput style={S.input} placeholder="Product Name" placeholderTextColor="#777" value={form.product} onChangeText={function(t){setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: t, amount: form.amount, address: form.address });}} /><TextInput style={S.input} placeholder="Amount NGN" placeholderTextColor="#777" value={form.amount} onChangeText={function(t){setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: t, address: form.address });}} keyboardType="numeric" /><TextInput style={S.input} placeholder="Seller Email" placeholderTextColor="#777" value={form.seller} onChangeText={function(t){setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: t, product: form.product, amount: form.amount, address: form.address });}} autoCapitalize="none" /><TextInput style={S.input} placeholder="Delivery Address" placeholderTextColor="#777" value={form.address} onChangeText={function(t){setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: t });}} /><TouchableOpacity style={S.btnGold} onPress={createDeal}><Text style={S.btnDark}>PAY WITH PAYSTACK - LOCK FUNDS</Text></TouchableOpacity></View></ScrollView>
+      ) : (
+        <FlatList data={tab==='sales'? escrows.filter(function(e){return e.seller===user.email;}) : escrows} keyExtractor={function(i){return i.id;}} style={{width:'100%'}} ListEmptyComponent={<Text style={S.empty}>No deals yet.</Text>} renderItem={function({item}){return (<View style={S.deal}><Text style={S.dealTi}>{item.product} - NGN {item.amount}</Text><Text style={S.dealMeta}>{item.status.toUpperCase()} | {item.date} | Ref {item.ref}</Text><Text style={S.dealMeta}>Buyer: {item.buyer} | Seller: {item.seller}</Text>{item.status==='locked' && user.role==='seller'? <TouchableOpacity style={S.btnG} onPress={function(){changeStatus(item.id,'shipped');}}><Text style={S.btnW}>Mark Shipped</Text></TouchableOpacity> : null}{item.status==='shipped' && user.role==='buyer'? <TouchableOpacity style={S.btnGold} onPress={function(){changeStatus(item.id,'delivered');}}><Text style={S.btnDark}>Confirm Delivery - Pay Seller via Paystack</Text></TouchableOpacity> : null}{item.status==='released'? <Text style={S.rel}>Paystack Paid Seller NGN {item.amount}</Text> : null}</View>);}} />
       )}
+      <Text style={S.ver}>Build 31 FINAL - Buyer/Seller - Escrow Wallet - Paystack Auto Pay - Icon</Text>
+    </View>
+  );
+}
 
-      {tab!=='create' && (
-        <FlatList
-          data={tab==='sales'?escrows.filter(e=>e.seller===user.email):myEscrows}
-          keyExtractor={i=>i.id}
-          style={{width:'100%'}}
-          ListEmptyComponent={<Text style={S.empty}>No deals yet. {user.role==='buyer'?'Tap Buy Now to start.':'Waiting for buyers.'}</Text>}
-          renderItem={({item})=>(
-            <View style={S.dealCard}>
-              <Text style={S.dTitle}>{item.product}</Text>
-              <Text style={S.dMeta}>₦{item.amount} • {item.status.toUpperCase()} • {item.date}</Text>
-              <Text style={S.dMeta}>Buyer: {item.buyerName} ({item.buyer})</Text>
-              <Text style={S.dMeta}>Seller: {item.seller}</Text>
-              <Text style={S.dMeta}>Ref: {item.paystackRef}</Text>
-
-              <View style={S.actionRow}>
-                {item.status==='locked' && user.role==='seller' && (
-                  <TouchableOpacity style={S.btnGreen} onPress={()=>updateStatus(item.id,'shipped')}><Text style={S.btnW}>Mark Shipped</Text></TouchableOpacity>
-                )}
-                {item.status==='shipped' && user.role==='buyer' && (
-                  <TouchableOpacity style={S.btnGold} onPress={()=>updateStatus(item.id,'delivered')}><Text style={S.btnDark}>Confirm Delivery - Pay Seller</Text></TouchableOpacity>
-                )}
+const S = StyleSheet.create({
+  container:{flexGrow:1,backgroundColor:'#000',alignItems:'center',padding:20,paddingTop:60},
+  dash:{flex:1,backgroundColor:'#000',padding:20,paddingTop:40},
+  shield:{fontSize:40,color:'#FFD700',fontWeight:'bold',marginBottom:10},
+  title:{color:'#fff',fontSize:24,fontWeight:'bold'},
+  gold:{color:'#FFD700',marginBottom:20,marginTop:6,fontWeight:'600'},
+  row:{flexDirection:'row',width:'100%',marginBottom:12},
+  roleBtn:{flex:1,padding:12,backgroundColor:'#111',alignItems:'center',borderRadius:10,marginHorizontal:4,borderWidth:1,borderColor:'#333'},
+  roleOn:{backgroundColor:'#FFD700'},
+  roleT:{color:'#fff',fontWeight:'bold'},
+  input:{width:'100%',backgroundColor:'#111',color:'#fff',borderRadius:12,padding:15,marginBottom:10,borderWidth:1,borderColor:'#222'},
+  btnGold:{width:'100%',backgroundColor:'#FFD700',padding:16,borderRadius:12,alignItems:'center',marginTop:10},
+  btnDark:{color:'#000',fontWeight:'bold',textAlign:'center'},
+  btnW:{color:'#fff',fontWeight:'bold',textAlign:'center'},
+  btnG:{backgroundColor:'#0F7A4A',padding:10,borderRadius:8,marginTop:8},
+  link:{color:'#0F7A4A',marginTop:16,fontWeight:'bold'},
+  ver:{color:'#444',fontSize:10,marginTop:20,textAlign:'center'},
+  header:{flexDirection:'row',justifyContent:'space-between',width:'100%',marginBottom:12},
+  hi:{color:'#fff',fontSize:16,fontWeight:'bold'},
+  badge:{color:'#FFD700',fontSize:10,marginTop:2},
+  logout:{color:'#ff4444',fontWeight:'bold'},
+  balCard:{width:'100%',backgroundColor:'#111',borderRadius:16,padding:16,borderWidth:1,borderColor:'#FFD700',marginBottom:12},
+  bLab:{color:'#aaa'},
+  bAmt:{color:'#fff',fontSize:28,fontWeight:'bold',marginVertical:4},
+  bSm:{color:'#888',fontSize:11},
+  tabs:{flexDirection:'row',width:'100%',marginBottom:10},
+  tab:{flex:1,padding:10,backgroundColor:'#111',alignItems:'center',marginHorizontal:3,borderRadius:10},
+  tabOn:{backgroundColor:'#FFD700'},
+  tabT:{color:'#fff',fontWeight:'bold',fontSize:12},
+  card:{width:'100%',backgroundColor:'#111',borderRadius:14,padding:14},
+  cardTi:{color:'#fff',fontWeight:'bold',marginBottom:10},
+  deal:{width:'100%',backgroundColor:'#111',borderRadius:12,padding:14,marginBottom:8,borderWidth:1,borderColor:'#222'},
+  dealTi:{color:'#fff',fontWeight:'bold'},
+  dealMeta:{color:'#888',fontSize:11,marginTop:3},
+  rel:{color:'#0F7A4A',fontWeight:'bold',marginTop:6},
+  empty:{color:'#555',marginTop:40,textAlign:'center'}
+});
