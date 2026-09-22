@@ -6,20 +6,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./icon.png",
-    "platforms": ["android"],
     "android": {
       "package": "com.escrowlock.goldv2",
-      "versionCode": 25,
+      "versionCode": 27,
       "icon": "./icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./icon.png",
         "backgroundColor": "#0F7A4A"
       }
     },
-    "extra": {
-      "eas": {
-        "projectId": "d2d4d29e-a421-4813-b003-ca2ba3f86f38"
-      }
-    }
+    "extra": { "eas": { "projectId": "d2d4d29e-a421-4813-b003-ca2ba3f86f38" } }
   }
 }
