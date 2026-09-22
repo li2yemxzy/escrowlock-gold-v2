@@ -9,7 +9,7 @@
     "platforms": ["android"],
     "android": {
       "package": "com.escrowlock.goldv2",
-      "versionCode": 22
+      "versionCode": 25
     },
     "extra": {
       "eas": {
