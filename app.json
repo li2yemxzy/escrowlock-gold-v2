@@ -8,12 +8,7 @@
     "icon": "./icon.png",
     "splash": { "image": "./icon.png", "resizeMode": "contain", "backgroundColor": "#000000" },
     "platforms": ["android"],
-    "android": {
-      "package": "com.escrowlock.goldv2",
-      "versionCode": 30,
-      "icon": "./icon.png",
-      "adaptiveIcon": { "foregroundImage": "./icon.png", "backgroundColor": "#000000" }
-    },
+    "android": { "package": "com.escrowlock.goldv2", "versionCode": 31, "icon": "./icon.png", "adaptiveIcon": { "foregroundImage": "./icon.png", "backgroundColor": "#000000" } },
     "extra": { "eas": { "projectId": "d2d4d29e-a421-4813-b003-ca2ba3f86f38" } }
   }
 }
