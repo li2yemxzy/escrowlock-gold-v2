@@ -1,19 +1,18 @@
 {
   "expo": {
-    "name": "escrowlock-gold-v2",
+    "name": "EscrowLock Gold V2",
     "slug": "escrowlock-gold-v2",
     "owner": "olakiitan",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./icon.png",
+    "splash": { "image": "./icon.png", "resizeMode": "contain", "backgroundColor": "#000000" },
+    "platforms": ["android"],
     "android": {
       "package": "com.escrowlock.goldv2",
-      "versionCode": 27,
+      "versionCode": 30,
       "icon": "./icon.png",
-      "adaptiveIcon": {
-        "foregroundImage": "./icon.png",
-        "backgroundColor": "#0F7A4A"
-      }
+      "adaptiveIcon": { "foregroundImage": "./icon.png", "backgroundColor": "#000000" }
     },
     "extra": { "eas": { "projectId": "d2d4d29e-a421-4813-b003-ca2ba3f86f38" } }
   }
