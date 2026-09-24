@@ -1,75 +1,89 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, StatusBar, ScrollView } from 'react-native';
 
-const OPAY_BANK = "OPay";
-const OPAY_NUMBER = "7042498421";
-const OPAY_NAME = "Adeyemi David Adesida";
-
 export default function App() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('buyer');
   const [isLogin, setIsLogin] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', pass: '', seller: '', product: '', amount: '', address: '' });
+  const [fName, setFName] = useState('');
+  const [fEmail, setFEmail] = useState('');
+  const [fPhone, setFPhone] = useState('');
+  const [fPass, setFPass] = useState('');
+  const [fSeller, setFSeller] = useState('');
+  const [fProduct, setFProduct] = useState('');
+  const [fAmount, setFAmount] = useState('');
+  const [fAddress, setFAddress] = useState('');
   const [escrows, setEscrows] = useState([]);
   const [tab, setTab] = useState('wallet');
 
-  const doRegister = () => {
-    if (!form.name ||!form.email ||!form.phone ||!form.pass) {
+  const OPAY_NUMBER = "7042498421";
+  const OPAY_NAME = "Adeyemi David Adesida";
+  const OPAY_BANK = "OPay";
+
+  function doRegister() {
+    if (!fName ||!fEmail ||!fPhone ||!fPass) {
       Alert.alert('Error', 'Fill all fields');
       return;
     }
-    setUser({ name: form.name, email: form.email, phone: form.phone, role: role });
-  };
+    setUser({ name: fName, email: fEmail, phone: fPhone, role: role });
+  }
 
-  const doLogin = () => {
-    if (!form.email ||!form.pass) {
+  function doLogin() {
+    if (!fEmail ||!fPass) {
       Alert.alert('Error', 'Enter email and password');
       return;
     }
-    setUser({ name: form.email.split('@')[0], email: form.email, phone: '080', role: role });
-  };
+    setUser({ name: fEmail.split('@')[0], email: fEmail, phone: '080', role: role });
+  }
 
-  const createDeal = () => {
-    if (!form.product ||!form.amount ||!form.seller) {
+  function createDeal() {
+    if (!fProduct ||!fAmount ||!fSeller) {
       Alert.alert('Error', 'Enter product, amount and seller email');
       return;
     }
     const newDeal = {
       id: Date.now().toString(),
-      product: form.product,
-      amount: form.amount,
-      buyer: user.email,
-      seller: form.seller,
-      buyerName: user.name,
-      address: form.address,
+      product: fProduct,
+      amount: fAmount,
+      buyer: fEmail,
+      seller: fSeller,
+      buyerName: fName,
+      address: fAddress,
       status: 'pending_payment',
       date: new Date().toLocaleDateString(),
       ref: 'ESL' + Date.now()
     };
-    setEscrows([newDeal].concat(escrows));
+    const all = [newDeal].concat(escrows);
+    setEscrows(all);
     setTab('wallet');
-    Alert.alert('Deal Created', 'Pay NGN ' + newDeal.amount + ' to ' + OPAY_NUMBER + ' Ref ' + newDeal.ref);
-  };
+    Alert.alert('Deal Created', 'Pay NGN ' + fAmount + ' to ' + OPAY_NUMBER + ' Ref ' + newDeal.ref);
+  }
 
-  const confirmPaid = (id) => {
-    const updated = escrows.map(function(e) {
+  function confirmPaid(id) {
+    const updated = [];
+    for (let i = 0; i < escrows.length; i++) {
+      const e = escrows[i];
       if (e.id === id) {
-        return { id: e.id, product: e.product, amount: e.amount, buyer: e.buyer, seller: e.seller, buyerName: e.buyerName, address: e.address, status: 'locked', date: e.date, ref: e.ref };
+        updated.push({ id: e.id, product: e.product, amount: e.amount, buyer: e.buyer, seller: e.seller, buyerName: e.buyerName, address: e.address, status: 'locked', date: e.date, ref: e.ref });
+      } else {
+        updated.push(e);
       }
-      return e;
-    });
+    }
     setEscrows(updated);
-  };
+  }
 
-  const changeStatus = (id, next) => {
-    const updated = escrows.map(function(e) {
+  function changeStatus(id, next) {
+    const updated = [];
+    for (let i = 0; i < escrows.length; i++) {
+      const e = escrows[i];
       if (e.id === id) {
-        return { id: e.id, product: e.product, amount: e.amount, buyer: e.buyer, seller: e.seller, buyerName: e.buyerName, address: e.address, status: next, date: e.date, ref: e.ref };
+        updated.push({ id: e.id, product: e.product, amount: e.amount, buyer: e.buyer, seller: e.seller, buyerName: e.buyerName, address: e.address, status: next, date: e.date, ref: e.ref });
+      } else {
+        updated.push(e);
       }
-      return e;
-    });
+    }
     setEscrows(updated);
-  };
+  }
 
   if (!user) {
     return (
@@ -77,37 +91,39 @@ export default function App() {
         <StatusBar barStyle="light-content" />
         <Text style={S.shield}>SHIELD</Text>
         <Text style={S.title}>EscrowLock Gold V2</Text>
-        <Text style={S.gold}>OPay Manual Escrow Live</Text>
+        <Text style={S.gold}>OPay Manual - Live</Text>
         <View style={S.row}>
-          <TouchableOpacity style={role === 'buyer'? S.roleOn : S.roleBtn} onPress={() => setRole('buyer')}><Text style={S.roleT}>BUYER</Text></TouchableOpacity>
-          <TouchableOpacity style={role === 'seller'? S.roleOn : S.roleBtn} onPress={() => setRole('seller')}><Text style={S.roleT}>SELLER</Text></TouchableOpacity>
+          <TouchableOpacity style={role === 'buyer'? S.roleOn : S.roleBtn} onPress={function(){setRole('buyer');}}><Text style={S.roleT}>BUYER</Text></TouchableOpacity>
+          <TouchableOpacity style={role === 'seller'? S.roleOn : S.roleBtn} onPress={function(){setRole('seller');}}><Text style={S.roleT}>SELLER</Text></TouchableOpacity>
         </View>
-        {!isLogin && <TextInput style={S.input} placeholder="Full Name" placeholderTextColor="#777" value={form.name} onChangeText={(t) => setForm({ name: t, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: form.address })} />}
-        <TextInput style={S.input} placeholder="Email" placeholderTextColor="#777" value={form.email} onChangeText={(t) => setForm({ name: form.name, email: t, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: form.address })} autoCapitalize="none" />
-        <TextInput style={S.input} placeholder="Phone" placeholderTextColor="#777" value={form.phone} onChangeText={(t) => setForm({ name: form.name, email: form.email, phone: t, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: form.address })} />
-        <TextInput style={S.input} placeholder="Password" placeholderTextColor="#777" secureTextEntry value={form.pass} onChangeText={(t) => setForm({ name: form.name, email: form.email, phone: form.phone, pass: t, seller: form.seller, product: form.product, amount: form.amount, address: form.address })} />
-        <TouchableOpacity style={S.btnGold} onPress={isLogin? doLogin : doRegister}><Text style={S.btnDark}>{isLogin? 'LOGIN' : 'REGISTER'}</Text></TouchableOpacity>
-        <TouchableOpacity onPress={() => setIsLogin(!isLogin)}><Text style={S.link}>{isLogin? 'No account? Register' : 'Have account? Login'}</Text></TouchableOpacity>
+        <TextInput style={S.input} placeholder="Full Name" placeholderTextColor="#777" value={fName} onChangeText={setFName} />
+        <TextInput style={S.input} placeholder="Email" placeholderTextColor="#777" value={fEmail} onChangeText={setFEmail} autoCapitalize="none" />
+        <TextInput style={S.input} placeholder="Phone" placeholderTextColor="#777" value={fPhone} onChangeText={setFPhone} />
+        <TextInput style={S.input} placeholder="Password" placeholderTextColor="#777" secureTextEntry value={fPass} onChangeText={setFPass} />
+        <TouchableOpacity style={S.btnGold} onPress={isLogin? doLogin : doRegister}><Text style={S.btnDark}>REGISTER LOGIN</Text></TouchableOpacity>
+        <TouchableOpacity onPress={function(){setIsLogin(!isLogin);}}><Text style={S.link}>Toggle Login</Text></TouchableOpacity>
         <Text style={S.ver}>Build 32 Fixed - OPay 7042498421</Text>
       </ScrollView>
     );
   }
 
-  const totalLocked = escrows.filter(function(e){return e.status!== 'released' && e.status!== 'pending_payment';}).reduce(function(s,e){return s+parseInt(e.amount||0);},0);
+  let totalLocked = 0;
+  for (let i = 0; i < escrows.length; i++) {
+    if (escrows[i].status!== 'released' && escrows[i].status!== 'pending_payment') {
+      totalLocked = totalLocked + parseInt(escrows[i].amount || '0');
+    }
+  }
 
   return (
     <View style={S.dash}>
-      <View style={S.header}><View><Text style={S.hi}>Hi, {user.name}</Text><Text style={S.badge}>{user.role} - {user.email}</Text></View><TouchableOpacity onPress={() => setUser(null)}><Text style={S.logout}>Logout</Text></TouchableOpacity></View>
-      <View style={S.balCard}><Text style={S.bLab}>Escrow Wallet Balance</Text><Text style={S.bAmt}>NGN {50000 - totalLocked}</Text><Text style={S.bSm}>Locked NGN {totalLocked}</Text></View>
-      <View style={S.opayCard}><Text style={S.opayTitle}>PAY TO LOCK FUNDS</Text><Text style={S.opayText}>Bank: {OPAY_BANK}</Text><Text style={S.opayText}>No: {OPAY_NUMBER}</Text><Text style={S.opayText}>Name: {OPAY_NAME}</Text></View>
-      <View style={S.tabs}><TouchableOpacity style={tab === 'wallet'? S.tabOn : S.tab} onPress={() => setTab('wallet')}><Text style={S.tabT}>Deals</Text></TouchableOpacity><TouchableOpacity style={tab === 'create'? S.tabOn : S.tab} onPress={() => setTab('create')}><Text style={S.tabT}>Buy Now</Text></TouchableOpacity><TouchableOpacity style={tab === 'sales'? S.tabOn : S.tab} onPress={() => setTab('sales')}><Text style={S.tabT}>Sales</Text></TouchableOpacity></View>
-      {tab === 'create'? (
-        <ScrollView style={{width:'100%'}}><View style={S.card}><Text style={S.cardTi}>Create Deal</Text><TextInput style={S.input} placeholder="Product" placeholderTextColor="#777" value={form.product} onChangeText={(t) => setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: t, amount: form.amount, address: form.address })} /><TextInput style={S.input} placeholder="Amount NGN" placeholderTextColor="#777" value={form.amount} onChangeText={(t) => setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: t, address: form.address })} keyboardType="numeric" /><TextInput style={S.input} placeholder="Seller Email" placeholderTextColor="#777" value={form.seller} onChangeText={(t) => setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: t, product: form.product, amount: form.amount, address: form.address })} autoCapitalize="none" /><TextInput style={S.input} placeholder="Delivery Address" placeholderTextColor="#777" value={form.address} onChangeText={(t) => setForm({ name: form.name, email: form.email, phone: form.phone, pass: form.pass, seller: form.seller, product: form.product, amount: form.amount, address: t })} /><TouchableOpacity style={S.btnGold} onPress={createDeal}><Text style={S.btnDark}>CREATE DEAL</Text></TouchableOpacity></View></ScrollView>
-      ) : (
-        <FlatList data={tab === 'sales'? escrows.filter(function(e){return e.seller === user.email;}) : escrows} keyExtractor={(i) => i.id} style={{width:'100%'}} ListEmptyComponent={<Text style={S.empty}>No deals yet</Text>} renderItem={({item}) => (
-          <View style={S.deal}><Text style={S.dealTi}>{item.product} - NGN {item.amount}</Text><Text style={S.dealMeta}>{item.status} | Ref {item.ref}</Text><Text style={S.dealMeta}>{item.buyer} to {item.seller}</Text>{item.status === 'pending_payment'? <View><Text style={S.payInfo}>Pay to {OPAY_NUMBER} ({OPAY_NAME})</Text><TouchableOpacity style={S.btnGold} onPress={() => confirmPaid(item.id)}><Text style={S.btnDark}>I Have Paid</Text></TouchableOpacity></View> : null}{item.status === 'locked'? <TouchableOpacity style={S.btnG} onPress={() => changeStatus(item.id, 'shipped')}><Text style={S.btnW}>Mark Shipped</Text></TouchableOpacity> : null}{item.status === 'shipped'? <TouchableOpacity style={S.btnGold} onPress={() => changeStatus(item.id, 'released')}><Text style={S.btnDark}>Confirm Delivery - Pay Seller</Text></TouchableOpacity> : null}{item.status === 'released'? <Text style={S.rel}>Paid to Seller via OPay</Text> : null}</View>
-        )} />
-      )}
+      <View style={S.header}><View><Text style={S.hi}>Hi {user.name}</Text><Text style={S.badge}>{user.role} {user.email}</Text></View><TouchableOpacity onPress={function(){setUser(null);}}><Text style={S.logout}>Logout</Text></TouchableOpacity></View>
+      <View style={S.balCard}><Text style={S.bLab}>Wallet</Text><Text style={S.bAmt}>NGN {50000 - totalLocked}</Text><Text style={S.bSm}>Locked NGN {totalLocked}</Text></View>
+      <View style={S.opayCard}><Text style={S.opayTitle}>PAY HERE TO LOCK</Text><Text style={S.opayText}>Bank {OPAY_BANK}</Text><Text style={S.opayText}>No {OPAY_NUMBER}</Text><Text style={S.opayText}>Name {OPAY_NAME}</Text></View>
+      <View style={S.tabs}><TouchableOpacity style={tab === 'wallet'? S.tabOn : S.tab} onPress={function(){setTab('wallet');}}><Text style={S.tabT}>Deals</Text></TouchableOpacity><TouchableOpacity style={tab === 'create'? S.tabOn : S.tab} onPress={function(){setTab('create');}}><Text style={S.tabT}>Buy Now</Text></TouchableOpacity><TouchableOpacity style={tab === 'sales'? S.tabOn : S.tab} onPress={function(){setTab('sales');}}><Text style={S.tabT}>Sales</Text></TouchableOpacity></View>
+      <ScrollView style={S.full}>
+        {tab === 'create'? <View style={S.card}><Text style={S.cardTi}>Create Deal</Text><TextInput style={S.input} placeholder="Product" placeholderTextColor="#777" value={fProduct} onChangeText={setFProduct} /><TextInput style={S.input} placeholder="Amount NGN" placeholderTextColor="#777" value={fAmount} onChangeText={setFAmount} keyboardType="numeric" /><TextInput style={S.input} placeholder="Seller Email" placeholderTextColor="#777" value={fSeller} onChangeText={setFSeller} autoCapitalize="none" /><TextInput style={S.input} placeholder="Address" placeholderTextColor="#777" value={fAddress} onChangeText={setFAddress} /><TouchableOpacity style={S.btnGold} onPress={createDeal}><Text style={S.btnDark}>CREATE DEAL</Text></TouchableOpacity></View> : null}
+        {tab!== 'create'? <FlatList data={tab === 'sales'? escrows.filter(function(e){return e.seller === user.email;}) : escrows} keyExtractor={function(i){return i.id;}} ListEmptyComponent={<Text style={S.empty}>No deals yet</Text>} renderItem={function(info){const item = info.item; return (<View style={S.deal}><Text style={S.dealTi}>{item.product} NGN {item.amount}</Text><Text style={S.dealMeta}>{item.status} Ref {item.ref}</Text><Text style={S.dealMeta}>{item.buyer} to {item.seller}</Text>{item.status === 'pending_payment'? <View><Text style={S.payInfo}>Pay to {OPAY_NUMBER} {OPAY_NAME}</Text><TouchableOpacity style={S.btnGold} onPress={function(){confirmPaid(item.id);}}><Text style={S.btnDark}>I Have Paid</Text></TouchableOpacity></View> : null}{item.status === 'locked'? <TouchableOpacity style={S.btnG} onPress={function(){changeStatus(item.id,'shipped');}}><Text style={S.btnW}>Mark Shipped</Text></TouchableOpacity> : null}{item.status === 'shipped'? <TouchableOpacity style={S.btnGold} onPress={function(){changeStatus(item.id,'released');}}><Text style={S.btnDark}>Confirm Delivery</Text></TouchableOpacity> : null}{item.status === 'released'? <Text style={S.rel}>Paid via OPay</Text> : null}</View>);}} /> : null}
+      </ScrollView>
     </View>
   );
 }
@@ -115,6 +131,7 @@ export default function App() {
 const S = StyleSheet.create({
   container:{flexGrow:1,backgroundColor:'#000',alignItems:'center',padding:20,paddingTop:60},
   dash:{flex:1,backgroundColor:'#000',padding:20,paddingTop:40},
+  full:{flex:1,width:'100%'},
   shield:{fontSize:40,color:'#FFD700',fontWeight:'bold',marginBottom:10},
   title:{color:'#fff',fontSize:24,fontWeight:'bold'},
   gold:{color:'#FFD700',marginBottom:20,marginTop:6},
@@ -145,4 +162,11 @@ const S = StyleSheet.create({
   tabOn:{flex:1,padding:10,backgroundColor:'#FFD700',alignItems:'center',marginHorizontal:3,borderRadius:10},
   tabT:{color:'#fff',fontWeight:'bold',fontSize:12},
   card:{width:'100%',backgroundColor:'#111',borderRadius:14,padding:14},
-  cardTi
+  cardTi:{color:'#fff',fontWeight:'bold',marginBottom:10},
+  deal:{width:'100%',backgroundColor:'#111',borderRadius:12,padding:14,marginBottom:8},
+  dealTi:{color:'#fff',fontWeight:'bold'},
+  dealMeta:{color:'#888',fontSize:11,marginTop:3},
+  payInfo:{color:'#FFD700',fontSize:12,marginTop:8,fontWeight:'bold'},
+  rel:{color:'#0F7A4A',fontWeight:'bold',marginTop:6},
+  empty:{color:'#555',marginTop:40,textAlign:'center'}
+});
